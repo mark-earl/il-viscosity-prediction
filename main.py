@@ -4,13 +4,16 @@ import os
 import requests
 import json
 
-def load_data(data_path, cache_path, sheet_names):
-    if os.path.exists(cache_path):
+from rdkit import Chem
+from rdkit.Chem import Draw
+
+def load_data(excel_data_path, excel_cache_path, sheet_names):
+    if os.path.exists(excel_cache_path):
         print("Loaded from cache")
-        return joblib.load(cache_path)
+        return joblib.load(excel_cache_path)
 
     print("Reading from Excel and caching")
-    dfs = pd.read_excel(data_path, sheet_name=sheet_names)
+    dfs = pd.read_excel(excel_data_path, sheet_name=sheet_names)
     joblib.dump(dfs, cache_path)
     return dfs
 
@@ -56,6 +59,16 @@ def save_image(image_url, file_path):
     else:
         print(f"Failed to retrieve image from {image_url}")
 
+def draw_molecule(smiles_string, file_path, image_size=(100, 100)):
+    """Draws a molecule from a SMILES string and saves it as a PNG."""
+    mol = Chem.MolFromSmiles(smiles_string)
+    if mol:
+        img = Draw.MolToImage(mol, size=image_size)
+        img.save(file_path)
+        print(f"Image drawn and saved to {file_path}")
+    else:
+        print(f"Could not convert SMILES to molecule for: {smiles_string}")
+
 def main(data_path, cache_path, output_path, not_found_cache_path):
     # Load datasets and caches
     dfs = load_data(data_path, cache_path, ['S1 | Groups', 'S2 | Ions', 'S3 | Database'])
@@ -66,6 +79,13 @@ def main(data_path, cache_path, output_path, not_found_cache_path):
 
     good, total = 0, 0
 
+    # Draw molecules for SMILES in not_found_cache
+    for smiles_string in not_found_cache.keys():
+        safe_smiles = smiles_string.replace('/', '_').replace('\\', '_')
+        image_path = f"data/images/{safe_smiles}.png"
+        draw_molecule(smiles_string, image_path)
+
+    # Process the 'S2 | Ions' DataFrame for images
     for smiles_string in dfs['S2 | Ions']['SMILES']:
         if isinstance(smiles_string, str) and smiles_string.strip():
             if smiles_string in not_found_cache:
