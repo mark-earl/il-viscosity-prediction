@@ -17,8 +17,12 @@ def generate_nodes_and_edges(df_database, df_ions):
         with open(cache_file, 'rb') as f:
             il_list = pickle.load(f)
     else:
+
         # Initialize an empty list to store IL entries
         il_list = []
+
+        # Create a set to track unique IL combinations (cation + anion)
+        unique_ils = set()
 
         # Get the functional group columns (everything after 'Number of ILs composed of the ion')
         functional_group_columns = df_ions.columns[df_ions.columns.get_loc('Number of ILs composed of the ion') + 1:]
@@ -27,6 +31,14 @@ def generate_nodes_and_edges(df_database, df_ions):
         for _, row in tqdm(df_database.iterrows(), total=df_database.shape[0], desc="Creating list of ILs and their functional groups"):
             cation = row['Cation']
             anion = row['Anion']
+
+            # Skip duplicates by checking if this combination already exists
+            il_combination = (cation, anion)
+            if il_combination in unique_ils:
+                continue  # Skip this entry if it's already processed
+
+            # Add the combination to the set of unique ILs
+            unique_ils.add(il_combination)
 
             # Initialize dictionaries to hold functional groups for this IL
             cation_groups = {}
