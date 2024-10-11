@@ -1,7 +1,8 @@
 import pandas as pd
 import os
+from tqdm import tqdm
 
-def generate_nodes_and_edges(df_database, df_groups, output_dir='data'):
+def generate_nodes_and_edges(df_database, df_groups, output_dir='exemplary_ion/data'):
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -15,7 +16,8 @@ def generate_nodes_and_edges(df_database, df_groups, output_dir='data'):
     # First, ensure there is a link between ILs and groups (if 'Exemplary ion' refers to either cation or anion)
     il_groups = {}
 
-    for _, row in df_groups.iterrows():
+    # Adding a progress bar for the df_groups iteration
+    for _, row in tqdm(df_groups.iterrows(), total=df_groups.shape[0], desc="Processing functional groups"):
         group_code = row['Group code']
         exemplary_ion = row['Exemplary ion']
 
@@ -29,10 +31,10 @@ def generate_nodes_and_edges(df_database, df_groups, output_dir='data'):
     edges = []
 
     # Loop through the ILs in the database and check for shared groups
-    for i, il1 in df_nodes.iterrows():
+    for i, il1 in tqdm(df_nodes.iterrows(), total=df_nodes.shape[0], desc="Processing edges between ILs (outer loop)"):
         groups_il1 = il_groups.get(il1['Cation'], []) + il_groups.get(il1['Anion'], [])
 
-        for j, il2 in df_nodes.iterrows():
+        for j, il2 in tqdm(df_nodes.iterrows(), total=df_nodes.shape[0], desc="Processing edges between ILs (inner loop)", leave=False):
             if i >= j:
                 continue  # Avoid duplicate pairs and self-loops
 
@@ -59,8 +61,7 @@ def main():
     # Generate nodes and edges
     generate_nodes_and_edges(df_database, df_groups)
 
-cache_path = 'data/cached_data.pkl'
-data_path = 'data/working_dataset.xlsx'
+data_path = 'C:/Users/mpe09/Development/il-property-prediction/data/working_dataset.xlsx'
 
 if __name__ == "__main__":
     main()
