@@ -5,6 +5,18 @@ from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
 from numpy.polynomial import Polynomial
 
+# Use: v_i = a_i * e ^ (b_i / RT)
+# OR log(v_i) = log(a_i) + (b_i / RT)
+# OR log(v_i) = c_0 + c_1 (1/t)
+# u_n = 1 / t_n
+# w_n = log(v_n)
+# something in scikit learn will be able to determine c_0 and c_1
+# c_0 = log(a_i) and c_1 = b` (b/R)
+# w_i = c_0 + c_1*u_i
+# At least 2 ILs, leave out ILs with only 1 entry
+# Test MSE & R^2
+# Have a and b reported in the dataset
+
 # Load Excel file
 excel_path = 'data/raw.xlsx'  # Adjust path as needed
 
