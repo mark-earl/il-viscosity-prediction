@@ -59,8 +59,11 @@ for il_id, group in tqdm(grouped.groupby('IL ID'), desc="Processing IL ID groups
 # Convert results to DataFrame
 results_df = pd.DataFrame(results)
 
-# Save results to CSV
-output_file = 'fit-viscosity-vars/fitting_results.csv'
+# Sort the results by R^2 from high to low
+results_df = results_df.sort_values(by='R^2', ascending=False)
+
+# Save the sorted results to CSV
+output_file = 'fit-viscosity-vars/fitting_results_sorted.csv'
 results_df.to_csv(output_file, index=False)
 
 # Display the first few rows of the results
@@ -74,14 +77,3 @@ num_il_tested = len(valid_r2_df)
 # Report the average R^2 and number of ILs tested
 print(f"\nAverage R^2 score: {average_r2:.4f}")
 print(f"Number of ionic liquids tested: {num_il_tested}")
-
-# Filter the results to get only rows where R^2 is below 0.96
-low_r2_df = valid_r2_df[valid_r2_df['R^2'] < 0.96]
-
-# Print out the ionic liquids that meet this criterion
-print("\nIonic liquids with R² below 0.96:")
-print(low_r2_df[['IL ID', 'Cation', 'Anion', 'R^2']])
-
-# If you want to save this filtered DataFrame to a separate CSV file as well
-low_r2_output_file = 'fit-viscosity-vars/low_r2_fitting_results.csv'
-low_r2_df.to_csv(low_r2_output_file, index=False)
