@@ -4,16 +4,12 @@ from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
 from tqdm import tqdm
 
-# Define the fitting equation
-def fitting_eq(viscosity, a, b, T):
-    return (1 / (viscosity ** 0.3)) - (a + b * T)
-
 # Load the dataset
 file_path = 'data/working-dataset.xlsx'
 df = pd.read_excel(file_path)
 
-# Group data by 'IL ID' and filter groups with < 3 values
-grouped = df.groupby('IL ID').filter(lambda x: len(x) > 2)
+# Group data by 'IL ID' and filter groups with < 2 values
+grouped = df.groupby('IL ID').filter(lambda x: len(x) > 1)
 
 # Prepare to store results
 results = []
@@ -25,25 +21,40 @@ for il_id, group in tqdm(grouped.groupby('IL ID'), desc="Processing IL ID groups
     cation = group['Cation'].values[0]  # Assuming same cation/anion for a group
     anion = group['Anion'].values[0]
 
-    # Initial guess for parameters a and b
-    initial_guess = [1, 1]
-
-    try:
-        # Perform curve fitting
-        popt, _ = curve_fit(lambda T, a, b: a + b * T, T, 1 / viscosity ** 0.3, p0=initial_guess)
+    # If there are exactly 2 data points, use a simple linear fit
+    if len(T) == 2:
+        # Perform linear regression using np.polyfit
+        slope, intercept = np.polyfit(T, 1 / viscosity ** 0.3, 1)
 
         # Predicted values
-        predicted = popt[0] + popt[1] * T
+        predicted = intercept + slope * T
 
         # Calculate R^2
-        r2 = r2_score(1 / viscosity ** 0.3, predicted)
+        r2 = 1.0  # R² is 1 for two points perfectly fitting a line
 
-        # Store results
-        results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': popt[0], 'b': popt[1], 'R^2': r2})
+        # Store the result
+        results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': intercept, 'b': slope, 'R^2': r2})
 
-    except RuntimeError:
-        # In case fitting fails
-        results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': None, 'b': None, 'R^2': None})
+    else:
+        # Initial guess for parameters a and b for curve fitting
+        initial_guess = [1, 1]
+
+        try:
+            # Perform curve fitting
+            popt, _ = curve_fit(lambda T, a, b: a + b * T, T, 1 / viscosity ** 0.3, p0=initial_guess)
+
+            # Predicted values
+            predicted = popt[0] + popt[1] * T
+
+            # Calculate R^2
+            r2 = r2_score(1 / viscosity ** 0.3, predicted)
+
+            # Store results
+            results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': popt[0], 'b': popt[1], 'R^2': r2})
+
+        except RuntimeError:
+            # In case fitting fails
+            results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': None, 'b': None, 'R^2': None})
 
 # Convert results to DataFrame
 results_df = pd.DataFrame(results)
@@ -63,3 +74,14 @@ num_il_tested = len(valid_r2_df)
 # Report the average R^2 and number of ILs tested
 print(f"\nAverage R^2 score: {average_r2:.4f}")
 print(f"Number of ionic liquids tested: {num_il_tested}")
+
+# Filter the results to get only rows where R^2 is below 0.96
+low_r2_df = valid_r2_df[valid_r2_df['R^2'] < 0.96]
+
+# Print out the ionic liquids that meet this criterion
+print("\nIonic liquids with R² below 0.96:")
+print(low_r2_df[['IL ID', 'Cation', 'Anion', 'R^2']])
+
+# If you want to save this filtered DataFrame to a separate CSV file as well
+low_r2_output_file = 'fit-viscosity-vars/low_r2_fitting_results.csv'
+low_r2_df.to_csv(low_r2_output_file, index=False)
