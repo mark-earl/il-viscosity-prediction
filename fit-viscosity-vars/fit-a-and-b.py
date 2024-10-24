@@ -1,0 +1,65 @@
+import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
+from sklearn.metrics import r2_score
+from tqdm import tqdm
+
+# Define the fitting equation
+def fitting_eq(viscosity, a, b, T):
+    return (1 / (viscosity ** 0.3)) - (a + b * T)
+
+# Load the dataset
+file_path = 'data/working-dataset.xlsx'
+df = pd.read_excel(file_path)
+
+# Group data by 'IL ID' and filter groups with < 3 values
+grouped = df.groupby('IL ID').filter(lambda x: len(x) > 2)
+
+# Prepare to store results
+results = []
+
+# Loop over each group, fit the equation, and compute R^2
+for il_id, group in tqdm(grouped.groupby('IL ID'), desc="Processing IL ID groups"):
+    T = group['T / K'].values
+    viscosity = group['η / mPa s'].values
+    cation = group['Cation'].values[0]  # Assuming same cation/anion for a group
+    anion = group['Anion'].values[0]
+
+    # Initial guess for parameters a and b
+    initial_guess = [1, 1]
+
+    try:
+        # Perform curve fitting
+        popt, _ = curve_fit(lambda T, a, b: a + b * T, T, 1 / viscosity ** 0.3, p0=initial_guess)
+
+        # Predicted values
+        predicted = popt[0] + popt[1] * T
+
+        # Calculate R^2
+        r2 = r2_score(1 / viscosity ** 0.3, predicted)
+
+        # Store results
+        results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': popt[0], 'b': popt[1], 'R^2': r2})
+
+    except RuntimeError:
+        # In case fitting fails
+        results.append({'IL ID': il_id, 'Cation': cation, 'Anion': anion, 'a': None, 'b': None, 'R^2': None})
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
+
+# Save results to CSV
+output_file = 'fit-viscosity-vars/fitting_results.csv'
+results_df.to_csv(output_file, index=False)
+
+# Display the first few rows of the results
+print(results_df.head())
+
+# Compute the average R^2 score and count of ionic liquids tested
+valid_r2_df = results_df.dropna(subset=['R^2'])  # Drop rows where R^2 is None
+average_r2 = valid_r2_df['R^2'].mean()
+num_il_tested = len(valid_r2_df)
+
+# Report the average R^2 and number of ILs tested
+print(f"\nAverage R^2 score: {average_r2:.4f}")
+print(f"Number of ionic liquids tested: {num_il_tested}")
