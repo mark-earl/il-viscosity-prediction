@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.metrics import r2_score
 
 # Load the dataset
 dataset_path = 'data/updated-working-dataset.xlsx'
@@ -33,22 +33,20 @@ def run_random_forest(data, feature_cols, target_col):
     y_pred = model.predict(X_test)
 
     # Evaluate model
-    mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
-    mae = mean_absolute_error(y_test, y_pred)
 
-    return mse, r2, mae
+    return r2
 
-# Run 1: Predict 'b' with functional groups and 'a' as features
-feature_cols_1 = list(functional_groups) + ['a']
+# Run 1: Predict 'b' with functional groups as features
+feature_cols_1 = list(functional_groups)  # Only functional groups as features
 target_col_1 = 'b'
-mse_1, r2_1, mae_1 = run_random_forest(data, feature_cols_1, target_col_1)
-print(f"Run 1 - Predicting 'b' with 'a' and functional groups as features:")
-print(f"MSE: {mse_1}, R^2: {r2_1}, MAE: {mae_1}")
+r2_1 = run_random_forest(data, feature_cols_1, target_col_1)
+print(f"Run 1 - Predicting 'b' with functional groups as features:")
+print(f"R^2: {r2_1}")
 
-# Run 2: Predict 'a' with functional groups and 'b' as features
-feature_cols_2 = list(functional_groups) + ['b']
+# Run 2: Predict 'a' with functional groups as features
+feature_cols_2 = list(functional_groups)  # Only functional groups as features
 target_col_2 = 'a'
-mse_2, r2_2, mae_2 = run_random_forest(data, feature_cols_2, target_col_2)
-print(f"Run 2 - Predicting 'a' with 'b' and functional groups as features:")
-print(f"MSE: {mse_2}, R^2: {r2_2}, MAE: {mae_2}")
+r2_2 = run_random_forest(data, feature_cols_2, target_col_2)
+print(f"Run 2 - Predicting 'a' with functional groups as features:")
+print(f"R^2: {r2_2}")
