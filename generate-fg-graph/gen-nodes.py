@@ -11,7 +11,7 @@ nodes = []
 for ionic_liquid in ionic_liquids_data:
     node_id = ionic_liquid["IL ID"]
     label = f'{ionic_liquid["Cation"]} + {ionic_liquid["Anion"]}'
-    nodes.append({"ID": node_id, "Label": label})
+    nodes.append({"IL ID": node_id, "Label": label})
 
 # Convert the list of nodes to a DataFrame
 nodes_df = pd.DataFrame(nodes)
