@@ -21,34 +21,59 @@ def remove_outliers(df, column):
     dropped_count = len(df) - len(filtered_df)
     return filtered_df, dropped_count
 
-# Remove outliers from 'η / mPa s' and track count
-data_cleaned, dropped_nodes = remove_outliers(data, 'η / mPa s')
-print(f"Number of nodes dropped as outliers: {dropped_nodes}")
-
 # Calculate the viscosity 'n' (calculated)
 def calculate_n(row):
     a = row['a']
     b = row['b']
     T = row['T / K']
-    calculated_n = 1 / ((a + b * T) ** (1 /.3))
+    calculated_n = 1 / ((a + b * T) ** (1 / .3))
     return calculated_n
 
 # Apply the formula to calculate viscosity
-data_cleaned['calculated_n'] = data_cleaned.apply(calculate_n, axis=1)
+data['calculated_n'] = data.apply(calculate_n, axis=1)
 
-# Plot Experimental vs Calculated Viscosity
+# Compute the residuals between experimental and calculated viscosities
+data['residual'] = np.abs(data['η / mPa s'] - data['calculated_n'])
+
+# Define a threshold for the residuals (e.g., 20% of the calculated viscosity)
+threshold = 0.2 * data['calculated_n']
+
+# Remove rows where the residual exceeds the threshold
+data_cleaned_pred_outliers = data[data['residual'] <= threshold]
+
+# Track how many rows were dropped
+dropped_count_pred_outliers = len(data) - len(data_cleaned_pred_outliers)
+print(f"Number of nodes dropped as predicted outliers: {dropped_count_pred_outliers}")
+
+# Plot Experimental vs Calculated Viscosity after removing predicted outliers
 plt.figure(figsize=(8, 6))
-plt.scatter(data_cleaned['η / mPa s'], data_cleaned['calculated_n'], color='blue', alpha=0.7)
-plt.plot([data_cleaned['η / mPa s'].min(), data_cleaned['η / mPa s'].max()],
-         [data_cleaned['η / mPa s'].min(), data_cleaned['η / mPa s'].max()],
+plt.scatter(data_cleaned_pred_outliers['η / mPa s'], data_cleaned_pred_outliers['calculated_n'], color='blue', alpha=0.7)
+plt.plot([data_cleaned_pred_outliers['η / mPa s'].min(), data_cleaned_pred_outliers['η / mPa s'].max()],
+         [data_cleaned_pred_outliers['η / mPa s'].min(), data_cleaned_pred_outliers['η / mPa s'].max()],
          color='red', linestyle='--', label='Ideal Fit (y=x)')
 plt.xlabel('Experimental Viscosity (η / mPa s)')
 plt.ylabel('Calculated Viscosity (n)')
-plt.title('Experimental vs Calculated Viscosity (After Removing Outliers)')
+plt.title('Experimental vs Calculated Viscosity (After Removing Predicted Outliers)')
 plt.legend()
 plt.grid()
 plt.show()
 
-# Calculate R^2 between experimental and calculated viscosity
-r2 = r2_score(data_cleaned['η / mPa s'], data_cleaned['calculated_n'])
-print(f"R^2 between Experimental and Calculated Viscosity (after removing outliers): {r2:.4f}")
+# Calculate R^2 between experimental and calculated viscosity after removing predicted outliers
+r2_pred_outliers = r2_score(data_cleaned_pred_outliers['η / mPa s'], data_cleaned_pred_outliers['calculated_n'])
+print(f"R^2 between Experimental and Calculated Viscosity (after removing predicted outliers): {r2_pred_outliers:.4f}")
+
+# Create a second graph showing values < 3500 on both axes
+data_filtered = data_cleaned_pred_outliers[(data_cleaned_pred_outliers['η / mPa s'] < 3500) & (data_cleaned_pred_outliers['calculated_n'] < 3500)]
+
+# Plot Experimental vs Calculated Viscosity with values < 3500
+plt.figure(figsize=(8, 6))
+plt.scatter(data_filtered['η / mPa s'], data_filtered['calculated_n'], color='green', alpha=0.7)
+plt.plot([data_filtered['η / mPa s'].min(), data_filtered['η / mPa s'].max()],
+         [data_filtered['η / mPa s'].min(), data_filtered['η / mPa s'].max()],
+         color='red', linestyle='--', label='Ideal Fit (y=x)')
+plt.xlabel('Experimental Viscosity (η / mPa s)')
+plt.ylabel('Calculated Viscosity (n)')
+plt.title('Experimental vs Calculated Viscosity (Filtered < 3500)')
+plt.legend()
+plt.grid()
+plt.show()
