@@ -17,8 +17,10 @@ cols_to_keep = [
     'IL ID', 'Cation', 'Anion', 'T / K', 'η / mPa s',
     'cation_Ion type', 'cation_Charge', 'cation_Family', 'cation_Molecular Weight', 'cation_LogP', 'cation_TPSA',
     'cation_H-Bond Donors', 'cation_H-Bond Acceptors', 'cation_Rotatable Bonds', 'cation_Number of ILs composed of the ion',
+    'cation_Molecular Surface Area', 'cation_Molecular Volume', 'cation_Molecular Radius',
     'anion_Ion type', 'anion_Charge', 'anion_Family', 'anion_Molecular Weight', 'anion_LogP', 'anion_TPSA',
-    'anion_H-Bond Donors', 'anion_H-Bond Acceptors', 'anion_Rotatable Bonds', 'anion_Number of ILs composed of the ion'
+    'anion_H-Bond Donors', 'anion_H-Bond Acceptors', 'anion_Rotatable Bonds', 'anion_Number of ILs composed of the ion',
+    'anion_Molecular Surface Area', 'anion_Molecular Volume', 'anion_Molecular Radius',
 ]
 
 fg_cols = [col for col in df.columns if col.split('_')[-1] in included_groups]
