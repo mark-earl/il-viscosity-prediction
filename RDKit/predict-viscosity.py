@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import norm
+from tqdm import tqdm
 
 # Load the data from the Excel file
 data_path = 'RDKit/data/working-ils.xlsx'
@@ -87,49 +89,49 @@ plt.show()
 
 # CONFIDENCE INTERVAL CALCULATIONS
 
-# # Run the model 50 times and collect R² values
-# num_runs = 50
-# r2_scores = []
+# Run the model 50 times and collect R² values
+num_runs = 50
+r2_scores = []
 
-# for i in range(num_runs):
-#     # Train/test split
-#     X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, test_size=0.2, random_state=i)
+for i in tqdm(range(num_runs), desc="Training and Evaluating"):
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, test_size=0.2, random_state=i)
 
-#     # Train the CatBoost model
-#     model = CatBoostRegressor(
-#         iterations=1000,
-#         learning_rate=0.1,
-#         depth=7,
-#         verbose=0  # Suppress output for multiple runs
-#     )
-#     model.fit(X_train, y_train)
+    # Train the CatBoost model
+    model = CatBoostRegressor(
+        iterations=1000,
+        learning_rate=0.1,
+        depth=6,
+        verbose=0  # Suppress output for multiple runs
+    )
+    model.fit(X_train, y_train)
 
-#     # Predict and evaluate
-#     y_pred = model.predict(X_test)
-#     r2 = r2_score(y_test, y_pred)
-#     r2_scores.append(r2)
+    # Predict and evaluate
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    r2_scores.append(r2)
 
-# # Calculate 95% confidence interval for R²
-# mean_r2 = np.mean(r2_scores)
-# std_r2 = np.std(r2_scores, ddof=1)  # Sample standard deviation
-# confidence_interval = norm.interval(0.95, loc=mean_r2, scale=std_r2 / np.sqrt(num_runs))
+# Calculate 95% confidence interval for R²
+mean_r2 = np.mean(r2_scores)
+std_r2 = np.std(r2_scores, ddof=1)  # Sample standard deviation
+confidence_interval = norm.interval(0.95, loc=mean_r2, scale=std_r2 / np.sqrt(num_runs))
 
-# # Print confidence interval
-# print(f"95% Confidence Interval for R²: {confidence_interval}")
+# Print confidence interval
+print(f"95% Confidence Interval for R²: {confidence_interval}")
 
-# # Sort R² scores for a smooth line plot
-# plt.plot(r2_scores, marker='o', linestyle='-', color='blue', label="R² Scores")
+# Sort R² scores for a smooth line plot
+plt.plot(r2_scores, marker='o', linestyle='-', color='blue', label="R² Scores")
 
-# # Highlight the confidence interval
-# plt.axhspan(confidence_interval[0], confidence_interval[1], color='yellow', alpha=0.3, label="95% CI")
+# Highlight the confidence interval
+plt.axhspan(confidence_interval[0], confidence_interval[1], color='yellow', alpha=0.3, label="95% CI")
 
-# # Plot mean R² as a horizontal line
-# plt.axhline(mean_r2, color='green', linestyle='-', label="Mean R²")
+# Plot mean R² as a horizontal line
+plt.axhline(mean_r2, color='green', linestyle='-', label="Mean R²")
 
-# # Labels and title
-# plt.title("R² Scores Across 50 Runs with 95% Confidence Interval")
-# plt.xlabel("Run Index")
-# plt.ylabel("R² Values")
-# plt.legend()
-# plt.tight_layout()
-# plt.show()
+# Labels and title
+plt.title("R² Scores Across 50 Runs with 95% Confidence Interval")
+plt.xlabel("Run Index")
+plt.ylabel("R² Values")
+plt.legend()
+plt.tight_layout()
+plt.show()
