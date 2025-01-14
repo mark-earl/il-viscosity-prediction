@@ -14,7 +14,7 @@ df = pd.read_excel(data_path)
 
 # Define the columns to keep (given list)
 cols_to_keep = [
-    'IL ID', 'Cation', 'Anion', 'T / K', 'η / mPa s',
+    'IL ID', 'Cation', 'Anion', 'Excluded IL', 'T / K', 'η / mPa s',
     'cation_Ion type', 'cation_Charge', 'cation_Family', 'cation_Molecular Weight', 'cation_LogP', 'cation_TPSA',
     'cation_H-Bond Donors', 'cation_H-Bond Acceptors', 'cation_Rotatable Bonds', 'cation_Number of ILs composed of the ion',
     'cation_Molecular Surface Area', 'cation_Molecular Volume', 'cation_Molecular Radius',

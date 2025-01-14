@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 # Load the first four columns from 'S8 | Modeling vs "raw" database' sheet
 ils_data_path = 'data/raw.xlsx'
-df_ils = pd.read_excel(ils_data_path, sheet_name='S8 | Modeling vs "raw" database', usecols=[1, 2, 3, 8, 9])
+df_ils = pd.read_excel(ils_data_path, sheet_name='S8 | Modeling vs "raw" database', usecols=[1, 2, 3, 6, 8, 9])
 
 # Drop any rows in the "df_ils" where either that "Cation" col or the "Anion" col is "hydrogenebisfluoride"
 # Drop rows where "Cation" or "Anion" is "hydrogenebisfluoride"
