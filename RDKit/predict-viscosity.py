@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import norm
 from tqdm import tqdm
 
-run_confidence_interval = False
+run_confidence_interval = True
 
 # Load the data from the Excel file
 data_path = 'RDKit/data/working-ils.xlsx'

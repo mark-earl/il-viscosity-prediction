@@ -7,13 +7,16 @@ lightweight_data_path = 'RDKit/data/lightweight-ils.xlsx'
 # Load raw data sheet "S7 | Modeling - correction term"
 raw_data = pd.read_excel(raw_data_path, sheet_name='S7 | Modeling - correction term')
 
+# Remove duplicates in raw data based on "Cation" and "Anion"
+raw_data_deduplicated = raw_data.drop_duplicates(subset=['Cation', 'Anion'])
+
 # Load RDKit data
 rdkit_data = pd.read_excel(lightweight_data_path)
 
-# Perform the matching based on "cation" and "anion"
+# Perform the matching based on "Cation" and "Anion"
 merged_data = pd.merge(
     rdkit_data,
-    raw_data[['Cation', 'Anion', "η0 /mPa s"]],
+    raw_data_deduplicated[['Cation', 'Anion', "η0 /mPa s"]],
     on=['Cation', 'Anion'],
     how='left'
 )
