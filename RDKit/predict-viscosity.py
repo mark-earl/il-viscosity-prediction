@@ -16,8 +16,7 @@ df = pd.read_excel(data_path)
 # Drop unnecessary columns
 excluded_il_col = df["Excluded IL"]
 df = df.drop(columns=[
-    'IL ID', 'Cation', 'Anion',
-    'T / K', 'η / mPa s'
+    'IL ID', 'Cation', 'Anion'
 ])
 
 # Filter data based on the "Excluded IL" attribute
@@ -33,10 +32,10 @@ X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, test
 
 # Initialize and train the CatBoost model
 model = CatBoostRegressor(
-    iterations=1000,
-    learning_rate=0.1,
-    depth=6,
-    verbose=200
+    # iterations=1000,
+    # learning_rate=0.1,
+    # depth=6,
+    verbose=0
 )
 model.fit(X_train, y_train)
 
@@ -103,9 +102,9 @@ for i in tqdm(range(num_runs), desc="Training and Evaluating"):
 
     # Train the CatBoost model
     model = CatBoostRegressor(
-        iterations=1000,
-        learning_rate=0.1,
-        depth=6,
+        # iterations=1000,
+        # learning_rate=0.1,
+        # depth=6,
         verbose=0  # Suppress output for multiple runs
     )
     model.fit(X_train, y_train)

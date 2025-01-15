@@ -24,6 +24,9 @@ merged_data = pd.merge(
 # Add the matched "η0 /mPa s" values as a new column "Reference Viscosity"
 merged_data.rename(columns={'η0 /mPa s': 'Reference Viscosity'}, inplace=True)
 
+# Remove experimental temp and viscosity
+merged_data = merged_data.drop(columns=['T / K', 'η / mPa s'])
+
 # Save the updated RDKit file with the new column
 updated_rdkit_path = 'RDKit/data/working-ils.xlsx'
 merged_data.to_excel(updated_rdkit_path, index=False)
