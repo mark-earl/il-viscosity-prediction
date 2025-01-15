@@ -7,6 +7,8 @@ import numpy as np
 from scipy.stats import norm
 from tqdm import tqdm
 
+run_confidence_interval = False
+
 # Load the data from the Excel file
 data_path = 'RDKit/data/working-ils.xlsx'
 df = pd.read_excel(data_path)
@@ -86,8 +88,10 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-
 # CONFIDENCE INTERVAL CALCULATIONS
+
+if not run_confidence_interval:
+    quit()
 
 # Run the model 50 times and collect R² values
 num_runs = 50
