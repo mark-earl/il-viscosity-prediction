@@ -14,7 +14,7 @@ df_ils = df_ils_cleaned
 
 # Load ions data
 ions_data_path = 'RDKit/data/ions_extended.xlsx'
-columns_to_skip = ['Chemical name', 'SMILES', 'Faimly', 'M / g/mol', 'Dipole Moment', 'Solvation-Free Energy', 'Misfit Interaction Energy', 'Sigma Moments', 'Hydrogen Bond Interaction Energy', 'Van der Waals Interaction Energy', 'Total Mean Interaction Energy']
+columns_to_skip = ['Chemical name', 'SMILES', '**Family', 'M / g/mol', 'Dipole Moment', 'Solvation-Free Energy', 'Misfit Interaction Energy', 'Sigma Moments', 'Hydrogen Bond Interaction Energy', 'Van der Waals Interaction Energy', 'Total Mean Interaction Energy']
 df_ions = pd.read_excel(ions_data_path, sheet_name='Extended Ions', usecols=lambda x: x not in columns_to_skip)
 
 # Function to get ion properties and prefix by ion type
