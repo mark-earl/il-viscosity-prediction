@@ -8,9 +8,9 @@ from confidence_interval import calculate_confidence_interval, plot_confidence_i
 DATA_PATH = 'data/xlsx/working-ils.xlsx'
 
 # Choose feature set
-FEATURE_SET_CHOICE = 'functional_groups'  # Options: "functional_groups", "molecular_descriptors", "both"
+FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
 
-USE_ONLY_TOP_FAMILIES = True
+USE_ONLY_TOP_FAMILIES = False
 # Define top cationic and anionic families
 TOP_CATION_FAMILIES = ['imidazolium', 'ammonium', 'phosphonium', 'pyridinium', 'pyrrolidinium']
 TOP_ANION_FAMILIES = ['NTf2 derivatives', 'carboxylates', 'BF4 derivatives', 'sulfonates', 'inorganics']
