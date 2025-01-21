@@ -5,7 +5,7 @@ from visualization import plot_results
 from feature_importance import calculate_feature_importance, plot_feature_importance
 from confidence_interval import calculate_confidence_interval, plot_confidence_interval
 
-DATA_PATH = 'RDKit/data/working-ils.xlsx'
+DATA_PATH = 'data/xlsx/working-ils.xlsx'
 
 # Choose feature set
 FEATURE_SET_CHOICE = 'functional_groups'  # Options: "functional_groups", "molecular_descriptors", "both"
