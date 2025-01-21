@@ -27,6 +27,12 @@ merged_data.rename(columns={'η0 /mPa s': 'Reference Viscosity'}, inplace=True)
 # Remove experimental temp and viscosity
 merged_data = merged_data.drop(columns=['T / K', 'η / mPa s'])
 
-# Save the updated RDKit file with the new column
+# Reorder columns to move "cation_Family" and "anion_Family" after "Cation" and "Anion"
+columns_order = ['Cation', 'Anion', 'cation_Family', 'anion_Family'] + [
+    col for col in merged_data.columns if col not in ['Cation', 'Anion', 'cation_Family', 'anion_Family']
+]
+merged_data = merged_data[columns_order]
+
+# Save the updated RDKit file with the new column order
 updated_rdkit_path = 'RDKit/data/working-ils.xlsx'
 merged_data.to_excel(updated_rdkit_path, index=False)

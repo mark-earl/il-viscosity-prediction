@@ -11,7 +11,7 @@ def calculate_confidence_interval(X_included, y_included, NUM_RUNS):
     r2_scores = []
 
     for i in tqdm(range(NUM_RUNS), desc="Training and Evaluating"):
-        X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, test_size=0.2, random_state=i)
+        X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, test_size=0.2, random_state=i*4)
 
         model = CatBoostRegressor(
             # iterations=1000,
