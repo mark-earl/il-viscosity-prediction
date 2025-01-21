@@ -1,0 +1,142 @@
+[
+    {
+        "Feature": "cation_CN",
+        "Importance": 30.687235594286655
+    },
+    {
+        "Feature": "anion_LogP",
+        "Importance": 8.182200997193508
+    },
+    {
+        "Feature": "anion_Molecular Surface Area",
+        "Importance": 4.181716899520543
+    },
+    {
+        "Feature": "cation_TPSA",
+        "Importance": 3.548157308738596
+    },
+    {
+        "Feature": "cation_CH2",
+        "Importance": 3.2286959830491373
+    },
+    {
+        "Feature": "anion_Molecular Volume",
+        "Importance": 3.218610787140864
+    },
+    {
+        "Feature": "cation_Molecular Weight",
+        "Importance": 3.2019857117424486
+    },
+    {
+        "Feature": "anion_CH2",
+        "Importance": 2.9657948797179703
+    },
+    {
+        "Feature": "anion_Rotatable Bonds",
+        "Importance": 2.9297653738058997
+    },
+    {
+        "Feature": "anion_Br",
+        "Importance": 2.825324153012772
+    },
+    {
+        "Feature": "cation_Molecular Volume",
+        "Importance": 2.6880176407195524
+    },
+    {
+        "Feature": "cation_LogP",
+        "Importance": 2.5013718270869703
+    },
+    {
+        "Feature": "cation_aNCH2",
+        "Importance": 2.468998725382872
+    },
+    {
+        "Feature": "cation_H-Bond Acceptors",
+        "Importance": 2.42354657136823
+    },
+    {
+        "Feature": "anion_COOH",
+        "Importance": 2.2650720942165146
+    },
+    {
+        "Feature": "anion_Molecular Radius",
+        "Importance": 2.034405594085025
+    },
+    {
+        "Feature": "anion_TPSA",
+        "Importance": 1.9663681041661167
+    },
+    {
+        "Feature": "cation_Molecular Surface Area",
+        "Importance": 1.9482359109518907
+    },
+    {
+        "Feature": "cation_Molecular Radius",
+        "Importance": 1.7244595058809964
+    },
+    {
+        "Feature": "cation_CH",
+        "Importance": 1.645681735311081
+    },
+    {
+        "Feature": "cation_Rotatable Bonds",
+        "Importance": 1.55512311675644
+    },
+    {
+        "Feature": "anion_Molecular Weight",
+        "Importance": 1.4321666473775725
+    },
+    {
+        "Feature": "anion_Charge",
+        "Importance": 1.2419913039754074
+    },
+    {
+        "Feature": "anion_(CH2)2PO4",
+        "Importance": 1.0562664382816744
+    },
+    {
+        "Feature": "anion_CH2SO4",
+        "Importance": 0.8499688670800543
+    },
+    {
+        "Feature": "cation_C(O)O",
+        "Importance": 0.7657116380344158
+    },
+    {
+        "Feature": "anion_PF6",
+        "Importance": 0.6535576332101852
+    },
+    {
+        "Feature": "cation_Im13",
+        "Importance": 0.5862861338421839
+    },
+    {
+        "Feature": "cation_aNPh",
+        "Importance": 0.5530518220054839
+    },
+    {
+        "Feature": "anion_H-Bond Acceptors",
+        "Importance": 0.4544200424022299
+    },
+    {
+        "Feature": "cation_Mor11",
+        "Importance": 0.380238101161418
+    },
+    {
+        "Feature": "cation_OH",
+        "Importance": 0.3627710222183634
+    },
+    {
+        "Feature": "anion_CH",
+        "Importance": 0.3398717669750951
+    },
+    {
+        "Feature": "anion_cycCH2",
+        "Importance": 0.29650488713098827
+    },
+    {
+        "Feature": "anion_cycNH",
+        "Importance": 0.2581022612256295
+    }
+]

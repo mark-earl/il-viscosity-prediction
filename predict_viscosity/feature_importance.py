@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import json
 
-def calculate_feature_importance(model, X_included, NUM_FEATURES):
+def calculate_feature_importance(model, X_included, NUM_FEATURES, output_path="feature_importances.json"):
     feature_importances = model.get_feature_importance()
     feature_names = X_included.columns
 
@@ -10,6 +11,12 @@ def calculate_feature_importance(model, X_included, NUM_FEATURES):
         'Importance': feature_importances
     }).sort_values(by='Importance', ascending=False)
 
+    # Export to JSON
+    top_features = feature_importance_df.head(NUM_FEATURES).to_dict(orient='records')
+    with open(output_path, 'w') as f:
+        json.dump(top_features, f, indent=4)
+
+    print(f"Feature importances exported to {output_path}")
     return feature_importance_df
 
 def plot_feature_importance(feature_importance_df, NUM_FEATURES):
