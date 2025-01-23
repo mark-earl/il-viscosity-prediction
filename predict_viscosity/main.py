@@ -10,7 +10,7 @@ DATA_PATH = 'data/xlsx/working-ils.xlsx'
 # Choose feature set
 FEATURE_SET_CHOICE = 'molecular_descriptors'  # Options: "functional_groups", "molecular_descriptors", "both"
 
-USE_ONLY_TOP_FAMILIES = False
+USE_ONLY_TOP_FAMILIES = True
 # Define top cationic and anionic families
 TOP_CATION_FAMILIES = ['imidazolium', 'ammonium', 'phosphonium', 'pyridinium', 'pyrrolidinium']
 TOP_ANION_FAMILIES = ['NTf2 derivatives', 'carboxylates', 'BF4 derivatives', 'sulfonates', 'inorganics']
@@ -39,7 +39,7 @@ if USE_ONLY_TOP_FAMILIES:
 included_data, excluded_data = preprocess_data(filtered_df)
 
 # Step 3: Select features
-X_included = select_features(included_data, FEATURE_SET_CHOICE, OVERRIDE_FEATURES, feature_json_path=r"results\top_35_features\regular\mol_des\feature_importances.json")
+X_included = select_features(included_data, FEATURE_SET_CHOICE, OVERRIDE_FEATURES, feature_json_path=r"results\top_35_features\using_top_families\mol_des\feature_importances.json")
 y_included = included_data['Reference Viscosity']
 
 # Step 4: Train-test split
@@ -56,8 +56,8 @@ y_pred, r2_rand = evaluate_model(model, X_test, y_test)
 plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 
 # Optional: Feature importance and confidence interval
-feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES)
-plot_feature_importance(feature_importance_df, NUM_FEATURES)
+# feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES)
+# plot_feature_importance(feature_importance_df, NUM_FEATURES)
 
 mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS)
 plot_confidence_interval(r2_scores, confidence_interval, mean_r2)

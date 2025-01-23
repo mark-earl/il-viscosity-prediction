@@ -1,0 +1,82 @@
+[
+    {
+        "Feature": "cation_TPSA",
+        "Importance": 34.27824168073294
+    },
+    {
+        "Feature": "anion_Molecular Surface Area",
+        "Importance": 9.669702708779287
+    },
+    {
+        "Feature": "anion_Molecular Weight",
+        "Importance": 9.573597371515888
+    },
+    {
+        "Feature": "anion_Molecular Volume",
+        "Importance": 7.976801885526198
+    },
+    {
+        "Feature": "anion_Molecular Radius",
+        "Importance": 7.452219339159719
+    },
+    {
+        "Feature": "cation_LogP",
+        "Importance": 5.047281629965275
+    },
+    {
+        "Feature": "anion_LogP",
+        "Importance": 4.878040714153086
+    },
+    {
+        "Feature": "cation_Molecular Weight",
+        "Importance": 3.5286211443872095
+    },
+    {
+        "Feature": "cation_Molecular Radius",
+        "Importance": 3.3488625322675487
+    },
+    {
+        "Feature": "cation_Molecular Volume",
+        "Importance": 2.4826346649191255
+    },
+    {
+        "Feature": "cation_Rotatable Bonds",
+        "Importance": 2.2986288989640133
+    },
+    {
+        "Feature": "cation_Molecular Surface Area",
+        "Importance": 2.260582543144
+    },
+    {
+        "Feature": "cation_H-Bond Acceptors",
+        "Importance": 2.0758895795358256
+    },
+    {
+        "Feature": "anion_H-Bond Donors",
+        "Importance": 1.9413157777953451
+    },
+    {
+        "Feature": "cation_H-Bond Donors",
+        "Importance": 1.2904639991242057
+    },
+    {
+        "Feature": "anion_H-Bond Acceptors",
+        "Importance": 0.9005261113514809
+    },
+    {
+        "Feature": "anion_TPSA",
+        "Importance": 0.8062436239292993
+    },
+    {
+        "Feature": "anion_Rotatable Bonds",
+        "Importance": 0.19034579474959196
+    },
+    {
+        "Feature": "cation_Charge",
+        "Importance": 0.0
+    },
+    {
+        "Feature": "anion_Charge",
+        "Importance": 0.0
+    }
+]

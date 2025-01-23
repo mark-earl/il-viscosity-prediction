@@ -1,0 +1,142 @@
+[
+    {
+        "Feature": "cation_CN",
+        "Importance": 47.67224909815539
+    },
+    {
+        "Feature": "anion_Br",
+        "Importance": 20.33360819995415
+    },
+    {
+        "Feature": "cation_CH2",
+        "Importance": 16.16300873065868
+    },
+    {
+        "Feature": "anion_Cl",
+        "Importance": 4.733843526983091
+    },
+    {
+        "Feature": "anion_aCSO3",
+        "Importance": 1.8708639456365679
+    },
+    {
+        "Feature": "cation_aNCH2",
+        "Importance": 1.4163917566905178
+    },
+    {
+        "Feature": "anion_COOH",
+        "Importance": 1.3102951145658506
+    },
+    {
+        "Feature": "cation_C(O)O",
+        "Importance": 1.2437511747322922
+    },
+    {
+        "Feature": "cation_OH",
+        "Importance": 0.7689684591966868
+    },
+    {
+        "Feature": "anion_BF4",
+        "Importance": 0.7561985750782992
+    },
+    {
+        "Feature": "cation_CH",
+        "Importance": 0.6328125069853633
+    },
+    {
+        "Feature": "anion_NTf2",
+        "Importance": 0.5136092569496621
+    },
+    {
+        "Feature": "anion_CH3COO",
+        "Importance": 0.3363781471119707
+    },
+    {
+        "Feature": "anion_CF2",
+        "Importance": 0.31895920022555374
+    },
+    {
+        "Feature": "anion_Ph",
+        "Importance": 0.2508510433351242
+    },
+    {
+        "Feature": "cation_N4",
+        "Importance": 0.23727672442768136
+    },
+    {
+        "Feature": "cation_Pyrro11",
+        "Importance": 0.17427623158842392
+    },
+    {
+        "Feature": "cation_PCH2",
+        "Importance": 0.14564798192527842
+    },
+    {
+        "Feature": "cation_N1",
+        "Importance": 0.12495648302372417
+    },
+    {
+        "Feature": "anion_CH2",
+        "Importance": 0.11748456117788968
+    },
+    {
+        "Feature": "cation_SO3H",
+        "Importance": 0.10324125970042686
+    },
+    {
+        "Feature": "anion_I",
+        "Importance": 0.09349768046745383
+    },
+    {
+        "Feature": "cation_Ph",
+        "Importance": 0.07918975990728498
+    },
+    {
+        "Feature": "cation_cycNCH3",
+        "Importance": 0.0633785437997936
+    },
+    {
+        "Feature": "cation_cycNCH2",
+        "Importance": 0.06224015649680437
+    },
+    {
+        "Feature": "cation_Im13",
+        "Importance": 0.057465771052092475
+    },
+    {
+        "Feature": "cation_aCCN",
+        "Importance": 0.05142153788552756
+    },
+    {
+        "Feature": "cation_N2",
+        "Importance": 0.03699553514314738
+    },
+    {
+        "Feature": "anion_CS",
+        "Importance": 0.03348192782316947
+    },
+    {
+        "Feature": "anion_NO3",
+        "Importance": 0.028910534507120077
+    },
+    {
+        "Feature": "anion_C(O)O",
+        "Importance": 0.028042370973314024
+    },
+    {
+        "Feature": "cation_CH2O",
+        "Importance": 0.022729070968198796
+    },
+    {
+        "Feature": "cation_cycCH",
+        "Importance": 0.021504223281657228
+    },
+    {
+        "Feature": "anion_CH3SO3",
+        "Importance": 0.01907176551946997
+    },
+    {
+        "Feature": "cation_CH3O",
+        "Importance": 0.018971518056281157
+    }
+]
