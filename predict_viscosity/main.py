@@ -8,15 +8,15 @@ from confidence_interval import calculate_confidence_interval, plot_confidence_i
 DATA_PATH = 'data/xlsx/working-ils.xlsx'
 
 # Choose feature set
-FEATURE_SET_CHOICE = 'molecular_descriptors'  # Options: "functional_groups", "molecular_descriptors", "both"
+FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
 
-USE_ONLY_TOP_FAMILIES = True
+USE_ONLY_TOP_FAMILIES = False
 # Define top cationic and anionic families
 TOP_CATION_FAMILIES = ['imidazolium', 'ammonium', 'phosphonium', 'pyridinium', 'pyrrolidinium']
 TOP_ANION_FAMILIES = ['NTf2 derivatives', 'carboxylates', 'BF4 derivatives', 'sulfonates', 'inorganics']
 
 # Manually select features
-OVERRIDE_FEATURES = True
+OVERRIDE_FEATURES = False
 
 # Confidence Interval Settings
 NUM_RUNS = 50
@@ -46,14 +46,14 @@ y_included = included_data['Reference Viscosity']
 # Ensure train-test split is stratified by cationic and anionic families
 X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 
-# Step 5: Train model
-model = train_model(X_train, y_train)
+# # Step 5: Train model
+# model = train_model(X_train, y_train)
 
-# Step 6: Evaluate model
-y_pred, r2_rand = evaluate_model(model, X_test, y_test)
+# # Step 6: Evaluate model
+# y_pred, r2_rand = evaluate_model(model, X_test, y_test)
 
-# Step 7: Plot results
-plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
+# # Step 7: Plot results
+# plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 
 # Optional: Feature importance and confidence interval
 # feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES)
@@ -63,4 +63,4 @@ mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_includ
 plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
 
 # Print results
-print(f"Model R² on test data: {r2_rand:.2f}")
+# print(f"Model R² on test data: {r2_rand:.2f}")
