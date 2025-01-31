@@ -4,8 +4,12 @@ from model_training import split_data, train_model, evaluate_model
 from visualization import plot_results
 from feature_importance import calculate_feature_importance, plot_feature_importance
 from confidence_interval import calculate_confidence_interval, plot_confidence_interval
+from committee_confidence_interval import calculate_committee_confidence_interval, plot_committee_confidence_interval
 
 DATA_PATH = 'data/xlsx/working-ils.xlsx'
+
+# Add a switch to choose between CatBoost-only and committee approach
+USE_COMMITTEE = True  # Set to False to use only CatBoost
 
 # Choose feature set
 FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
@@ -59,8 +63,12 @@ X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 # feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES)
 # plot_feature_importance(feature_importance_df, NUM_FEATURES)
 
-mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS)
-plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
+if USE_COMMITTEE:
+    mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS)
+    plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2)
+else:
+    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS)
+    plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
 
 # Print results
 # print(f"Model R² on test data: {r2_rand:.2f}")
