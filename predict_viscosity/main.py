@@ -6,21 +6,19 @@ from feature_importance import calculate_feature_importance, plot_feature_import
 from confidence_interval import calculate_confidence_interval, plot_confidence_interval
 from committee_confidence_interval import calculate_committee_confidence_interval, plot_committee_confidence_interval
 
+################################################################################################################################
+
+# SET UP
+
+# Data
 DATA_PATH = 'data/xlsx/working-ils.xlsx'
+
+# Features
+FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
+OVERRIDE_FEATURES = False
 
 # Add a switch to choose between CatBoost-only and committee approach
 USE_COMMITTEE = True  # Set to False to use only CatBoost
-
-# Choose feature set
-FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
-
-USE_ONLY_TOP_FAMILIES = False
-# Define top cationic and anionic families
-TOP_CATION_FAMILIES = ['imidazolium', 'ammonium', 'phosphonium', 'pyridinium', 'pyrrolidinium']
-TOP_ANION_FAMILIES = ['NTf2 derivatives', 'carboxylates', 'BF4 derivatives', 'sulfonates', 'inorganics']
-
-# Manually select features
-OVERRIDE_FEATURES = False
 
 # Confidence Interval Settings
 NUM_RUNS = 50
@@ -28,23 +26,17 @@ NUM_RUNS = 50
 # Feature Importance
 NUM_FEATURES = 35
 
+################################################################################################################################
+
 # Step 1: Load and preprocess data
 df = load_data(DATA_PATH)
 
-# Filter data for top families
-filtered_df = df
-if USE_ONLY_TOP_FAMILIES:
-    filtered_df = df[
-        (df['cation_Family'].isin(TOP_CATION_FAMILIES)) &
-        (df['anion_Family'].isin(TOP_ANION_FAMILIES))
-    ]
-
 # Step 2: Preprocess data
-included_data, excluded_data = preprocess_data(filtered_df)
+included_data, excluded_data = preprocess_data(df)
 
 # Step 3: Select features
 X_included = select_features(included_data, FEATURE_SET_CHOICE, OVERRIDE_FEATURES, feature_json_path=r"results\top_35_features\using_top_families\mol_des\feature_importances.json")
-y_included = included_data['Reference Viscosity']
+y_included = included_data['Reference Viscosity Log']
 
 # Step 4: Train-test split
 # Ensure train-test split is stratified by cationic and anionic families
@@ -67,7 +59,7 @@ if USE_COMMITTEE:
     mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS)
     plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2)
 else:
-    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS)
+    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS, model_name="mlp")
     plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
 
 # Print results

@@ -9,7 +9,7 @@ def load_data(data_path):
 def preprocess_data(df):
     excluded_il_col = df["Excluded IL"]
     df = df.drop(columns=[
-        'IL ID', 'Cation', 'Anion'
+        'IL ID', 'Cation', 'Anion', 'Reference Viscosity'
     ])
 
     included_data = df[excluded_il_col == False]

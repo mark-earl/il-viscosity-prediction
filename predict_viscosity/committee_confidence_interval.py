@@ -1,8 +1,7 @@
 from sklearn.model_selection import train_test_split
 from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
-from sklearn.ensemble import RandomForestRegressor
-from lightgbm import LGBMRegressor
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import r2_score
 from scipy.stats import norm
 import numpy as np
@@ -11,10 +10,10 @@ from tqdm import tqdm
 
 # Define the committee of models
 MODELS = {
-    "CatBoost": CatBoostRegressor(verbose=0),
-    "XGBoost": XGBRegressor(verbosity=0),
-    "RandomForest": RandomForestRegressor(),
-    "LightGBM": LGBMRegressor()
+    "catboost": CatBoostRegressor(verbose=0),
+    "linear_regression": LinearRegression(),
+    "ridge": Ridge(),
+    "xgboost": XGBRegressor(eval_metric='rmse', use_label_encoder=False),
 }
 
 
