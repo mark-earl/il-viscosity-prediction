@@ -1,41 +1,42 @@
 import pandas as pd
 
-raw_dataset_path = 'data/raw.xlsx'
+# Paths for input and output files
+raw_dataset_path = 'data/xlsx/raw.xlsx'
+data_path = 'data/xlsx/ils.xlsx'
+output_path = 'data/xlsx/lightweight-ils_v2.xlsx'
 
 # Load sheet with included functional groups
 reference_model = pd.read_excel(raw_dataset_path, sheet_name="S9 | Reference model - SWMLR", header=1)
-included_groups = reference_model[reference_model["In model"] == True]["Group"]
+included_groups = reference_model.loc[reference_model["In model"] == True, "Group"].dropna().astype(str).tolist()
 
-# Ensure the functional groups are valid column names
-included_groups = included_groups.dropna().astype(str).tolist()
-
-data_path = 'RDKit/data/ils.xlsx'
+# Load the main dataset
 df = pd.read_excel(data_path)
 
-# Define the columns to keep (given list)
-cols_to_keep = [
-    'IL ID', 'Cation', 'Anion', 'Excluded IL', 'T / K', 'η / mPa s',
-    'cation_Charge', 'cation_Molecular Weight', 'cation_LogP', 'cation_TPSA', 'cation_Family',
-    'cation_H-Bond Donors', 'cation_H-Bond Acceptors', 'cation_Rotatable Bonds',
-    'cation_Molecular Surface Area', 'cation_Molecular Volume', 'cation_Molecular Radius',
-    'anion_Charge', 'anion_Molecular Weight', 'anion_LogP', 'anion_TPSA', 'anion_Family',
-    'anion_H-Bond Donors', 'anion_H-Bond Acceptors', 'anion_Rotatable Bonds',
-    'anion_Molecular Surface Area', 'anion_Molecular Volume', 'anion_Molecular Radius',
-]
+# Automatically identify columns to keep
+general_columns = ["IL ID", "Cation", "Anion", "Excluded IL", "T / K", "η / mPa s"]
 
-fg_cols = [col for col in df.columns if col.split('_')[-1] in included_groups]
+# Locate the index positions for cation molecular descriptor range
+cation_start = df.columns.get_loc("cation_MaxAbsEStateIndex")
+cation_end = df.columns.get_loc("cation_Molecular Radius") + 1
+cation_mol_des_cols = df.columns[cation_start:cation_end].tolist()
 
-cols_to_keep = cols_to_keep + fg_cols
+# Locate the index positions for anion molecular descriptor range
+anion_start = df.columns.get_loc("anion_MaxAbsEStateIndex")
+anion_end = df.columns.get_loc("anion_Molecular Radius") + 1
+anion_mol_des_cols = df.columns[anion_start:anion_end].tolist()
 
-df = df[cols_to_keep]
+functional_group_cols = [col for col in df.columns if col.split('_')[-1] in included_groups]
 
-df = df.dropna()
+# Combine all the columns to keep
+cols_to_keep = general_columns + cation_mol_des_cols + anion_mol_des_cols + functional_group_cols
 
-# Step 4: Keep only one row per "IL ID"
+# Filter and clean the DataFrame
+df = df[cols_to_keep].dropna()
+
+# Keep only one row per "IL ID"
 df = df.drop_duplicates(subset='IL ID', keep='first')
 
 # Save the cleaned dataset to a new Excel file
-output_path = 'RDKit/data/lightweight-ils.xlsx'
 df.to_excel(output_path, index=False)
 
 print(f"Processed data saved to {output_path}")

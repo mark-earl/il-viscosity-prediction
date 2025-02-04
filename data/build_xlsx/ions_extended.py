@@ -1,21 +1,19 @@
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
+from rdkit.Chem import Descriptors
 import rdkit.Chem.rdFreeSASA as FreeSASA
 from rdkit.Chem.AllChem import UFFOptimizeMolecule, EmbedMolecule
 import pandas as pd
 import math
+from tqdm import tqdm
 
 # Load datasets
-dataset_path = 'data/raw.xlsx'
-output_path = 'RDKit/data/ions_extended.xlsx'
+dataset_path = 'data/xlsx/raw.xlsx'
+output_path = 'data/xlsx/ions_extended.xlsx'
 
-# Read the original ions data
-df_ions = pd.read_excel(dataset_path, sheet_name='S2 | Ions')
+# Read the original ions data and drop rows where the SMILES is empty
+df_ions = pd.read_excel(dataset_path, sheet_name='S2 | Ions').dropna(subset=["SMILES"])
 
-# Drop rows where the SMILES is empty
-df_ions = df_ions.dropna(subset=["SMILES"])  # No SMILES for hydrogenebisfluoride
-
-# Compute relevant molecular properties for the various ions
+# Compute molecular properties for a given SMILES
 def compute_properties(smiles):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
@@ -27,77 +25,43 @@ def compute_properties(smiles):
     try:
         EmbedMolecule(mol_h)
         UFFOptimizeMolecule(mol_h)
-    except ValueError as e:
-        print(f"Skipping ion due to conformer generation/optimization error: {smiles}. Error: {e}")
+    except ValueError:
+        print(f"Skipping ion due to conformer generation/optimization error: {smiles}")
         return None
 
-    # RDKit-based properties
-    properties = {
-        "Molecular Weight": Descriptors.MolWt(mol),  # g/mol
-        "LogP": Descriptors.MolLogP(mol),           # LogP
-        "TPSA": Descriptors.TPSA(mol),              # Topological polar surface area (Å²)
-        "H-Bond Donors": rdMolDescriptors.CalcNumHBD(mol),
-        "H-Bond Acceptors": rdMolDescriptors.CalcNumHBA(mol),
-        "Rotatable Bonds": rdMolDescriptors.CalcNumRotatableBonds(mol),
-    }
+    # Compute all RDKit molecular descriptors
+    properties = {}
+    for name, func in Descriptors.descList:
+        try:
+            properties[name] = func(mol)
+        except Exception:
+            properties[name] = None
 
-    # Molecular surface area
+    # Compute molecular surface area, volume, and radius
     try:
         radii = FreeSASA.classifyAtoms(mol_h)
-        sasa = FreeSASA.CalcSASA(mol_h, radii)  # Solvent accessible surface area
-        properties["Molecular Surface Area"] = round(sasa, 3)
-
-        # Approximate molecular volume using SASA (divided by a constant factor)
-        volume = sasa / 100
-        properties["Molecular Volume"] = round(volume, 3)
-
-        # Molecular radius approximation
-        radius = (3 * volume / (4 * math.pi)) ** (1/3)
-        properties["Molecular Radius"] = round(radius, 3)
-    except Exception as e:
-        print(f"Skipping surface/volume calculations for SMILES {smiles}. Error: {e}")
-        properties["Molecular Surface Area"] = None
-        properties["Molecular Volume"] = None
-        properties["Molecular Radius"] = None
-
-    # Placeholder values for properties requiring quantum mechanics or external tools
-    # TODO: possibly we could do this later?
-    properties["Dipole Moment"] = "Requires QM tools"
-    properties["Solvation-Free Energy"] = "Requires QM tools"
-    properties["Misfit Interaction Energy"] = "Requires QM tools"
-    properties["Sigma Moments"] = "To be calculated with QM tools"
-    properties["Hydrogen Bond Interaction Energy"] = "Requires molecular dynamics"
-    properties["Van der Waals Interaction Energy"] = "Requires molecular dynamics"
-    properties["Total Mean Interaction Energy"] = "Requires QM calculations"
+        sasa = FreeSASA.CalcSASA(mol_h, radii)
+        properties.update({
+            "Molecular Surface Area": round(sasa, 3),
+            "Molecular Volume": round(sasa / 100, 3),
+            "Molecular Radius": round((3 * (sasa / 100) / (4 * math.pi)) ** (1/3), 3),
+        })
+    except Exception:
+        properties.update({
+            "Molecular Surface Area": None,
+            "Molecular Volume": None,
+            "Molecular Radius": None,
+        })
 
     return properties
 
 
-# Prepare the new properties columns
-property_columns = [
-    "Molecular Weight", "LogP", "TPSA", "H-Bond Donors", "H-Bond Acceptors",
-    "Rotatable Bonds", "Molecular Surface Area", "Molecular Volume",
-    "Molecular Radius",
+# Compute descriptors and add them to DataFrame
+all_descriptors = [name for name, _ in Descriptors.descList]
+df_ions = df_ions.reindex(columns=df_ions.columns.tolist() + all_descriptors + ["Molecular Surface Area", "Molecular Volume", "Molecular Radius"])
 
-    # TODO: Relates to the previous categories
-    # "Dipole Moment", "Solvation-Free Energy",
-    # "Misfit Interaction Energy", "Sigma Moments", "Hydrogen Bond Interaction Energy",
-    # "Van der Waals Interaction Energy", "Total Mean Interaction Energy"
-]
-
-# Initialize the columns with NaN
-for col in property_columns:
-    df_ions[col] = None
-
-# Reorder columns to place the new properties after the "M / g/mol" column
-cols = df_ions.columns.tolist()
-molecular_weight_index = cols.index("M / g/mol")
-new_order = (cols[:molecular_weight_index + 1] + property_columns + cols[molecular_weight_index + 1:-6])
-df_ions = df_ions[new_order]
-
-# Compute properties for each ion and update the DataFrame
 skipped_ions = []
-for idx, row in df_ions.iterrows():
+for idx, row in tqdm(df_ions.iterrows(), total=len(df_ions), desc="Computing descriptors"):
     smiles = row["SMILES"]
     properties = compute_properties(smiles)
     if properties is None:
@@ -110,5 +74,4 @@ print(f"Skipped the following ions due to errors: {skipped_ions}")
 
 # Export the final DataFrame to a new Excel file
 df_ions.to_excel(output_path, index=False, sheet_name='Extended Ions')
-
 print(f"Processed data saved to {output_path}")

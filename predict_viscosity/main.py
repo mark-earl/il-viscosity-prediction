@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from data_preprocessing import load_data, preprocess_data, select_features
 from model_training import split_data, train_model, evaluate_model
 from visualization import plot_results
@@ -17,14 +18,17 @@ DATA_PATH = 'data/xlsx/working-ils.xlsx'
 FEATURE_SET_CHOICE = 'both'  # Options: "functional_groups", "molecular_descriptors", "both"
 OVERRIDE_FEATURES = False
 
+# Feature Importance Path (optional)
+FEATURE_IMPORTANCE_PATH = "data/xlsx/feature_importance.xlsx"
+USE_FEATURE_IMPORTANCE = False  # Toggle this to use the features from the file
+# Feature Importance
+NUM_FEATURES = 100
+
 # Add a switch to choose between CatBoost-only and committee approach
 USE_COMMITTEE = True  # Set to False to use only CatBoost
 
 # Confidence Interval Settings
 NUM_RUNS = 50
-
-# Feature Importance
-NUM_FEATURES = 35
 
 ################################################################################################################################
 
@@ -34,8 +38,17 @@ df = load_data(DATA_PATH)
 # Step 2: Preprocess data
 included_data, excluded_data = preprocess_data(df)
 
-# Step 3: Select features
-X_included = select_features(included_data, FEATURE_SET_CHOICE, OVERRIDE_FEATURES, feature_json_path=r"results\top_35_features\using_top_families\mol_des\feature_importances.json")
+# Load precomputed feature importance if enabled
+if USE_FEATURE_IMPORTANCE and os.path.exists(FEATURE_IMPORTANCE_PATH):
+    feature_importance_df = pd.read_excel(FEATURE_IMPORTANCE_PATH)
+    top_features = feature_importance_df['Feature'].head(NUM_FEATURES).tolist()
+    print(f"Using top {len(top_features)} features from the feature importance file.")
+else:
+    top_features = None
+    print("No feature importance file found or usage disabled. Proceeding without it.")
+
+# Step 3: Select features based on precomputed importance or default feature selection
+X_included = select_features(included_data, FEATURE_SET_CHOICE, OVERRIDE_FEATURES, top_features)
 y_included = included_data['Reference Viscosity Log']
 
 # Step 4: Train-test split
@@ -52,8 +65,8 @@ X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 # plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 
 # Optional: Feature importance and confidence interval
-# feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES)
-# plot_feature_importance(feature_importance_df, NUM_FEATURES)
+# feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES_FOR_THIS_ONE)
+# plot_feature_importance(feature_importance_df, NUM_FEATURES_FOR_THIS_ONE)
 
 if USE_COMMITTEE:
     mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS)
