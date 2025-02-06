@@ -18,7 +18,7 @@ def split_data(X_included, y_included):
 def train_model(X_train, y_train, model_name="catboost"):
     models = {
         "catboost": CatBoostRegressor(verbose=0),
-        "xgboost": XGBRegressor(eval_metric='rmse', use_label_encoder=False),
+        "xgboost": XGBRegressor(eval_metric='rmse'),
         "random_forest": RandomForestRegressor(),
         "lightgbm": LGBMRegressor(),
         "gradient_boosting": GradientBoostingRegressor(),

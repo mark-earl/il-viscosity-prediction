@@ -5,7 +5,7 @@ from model_training import split_data, train_model, evaluate_model
 from visualization import plot_results
 from feature_importance import calculate_feature_importance, plot_feature_importance
 from confidence_interval import calculate_confidence_interval, plot_confidence_interval
-from committee_confidence_interval import calculate_committee_confidence_interval, plot_committee_confidence_interval
+from committee_confidence_interval import calculate_committee_confidence_interval, plot_committee_confidence_interval, run_single_committee_model
 
 ################################################################################################################################
 
@@ -25,7 +25,7 @@ USE_FEATURE_IMPORTANCE = False  # Toggle this to use the features from the file
 NUM_FEATURES = 100
 
 # Add a switch to choose between CatBoost-only and committee approach
-USE_COMMITTEE = True  # Set to False to use only CatBoost
+USE_COMMITTEE = False  # Set to False to use only CatBoost
 
 # Confidence Interval Settings
 NUM_RUNS = 50
@@ -56,7 +56,7 @@ y_included = included_data['Reference Viscosity Log']
 X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 
 # # Step 5: Train model
-# model = train_model(X_train, y_train)
+# model = train_model(X_train, y_train, "ridge")
 
 # # Step 6: Evaluate model
 # y_pred, r2_rand = evaluate_model(model, X_test, y_test)
@@ -71,9 +71,17 @@ X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 if USE_COMMITTEE:
     mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS)
     plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2)
+
+    # Show results for a single committee run
+    X_train, X_test, y_train, y_test = split_data(X_included, y_included)
+    y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test)
+
+    # Plot individual run results
+    plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 else:
-    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS, model_name="mlp")
+    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, NUM_RUNS, model_name="linear_regression")
     plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
+
 
 # Print results
 # print(f"Model R² on test data: {r2_rand:.2f}")

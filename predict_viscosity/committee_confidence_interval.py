@@ -10,10 +10,10 @@ from tqdm import tqdm
 
 # Define the committee of models
 MODELS = {
-    "catboost": CatBoostRegressor(verbose=0),
+    # "catboost": CatBoostRegressor(verbose=0),
     "linear_regression": LinearRegression(),
-    "ridge": Ridge(),
-    "xgboost": XGBRegressor(eval_metric='rmse', use_label_encoder=False),
+    # "ridge": Ridge(),
+    "xgboost": XGBRegressor(objective='reg:gamma'),
 }
 
 
@@ -53,3 +53,15 @@ def plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2):
     plt.legend()
     plt.tight_layout()
     plt.show()
+
+def run_single_committee_model(X_train, X_test, y_train, y_test):
+    """Train and predict using a single committee run."""
+    committee_predictions = np.zeros_like(y_test, dtype=float)
+
+    # Train and predict with each model in the committee
+    for name, model in MODELS.items():
+        model.fit(X_train, y_train)
+        committee_predictions += model.predict(X_test) / len(MODELS)
+
+    r2_rand = r2_score(y_test, committee_predictions)
+    return committee_predictions, r2_rand

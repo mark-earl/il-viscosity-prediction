@@ -20,12 +20,12 @@ def calculate_confidence_interval(X_included, y_included, NUM_RUNS, model_name="
 
     models = {
         "catboost": CatBoostRegressor(verbose=0),
-        "xgboost": XGBRegressor(eval_metric='rmse', use_label_encoder=False),
+        "xgboost": XGBRegressor(),
         "random_forest": RandomForestRegressor(),
         "lightgbm": LGBMRegressor(),
         "gradient_boosting": GradientBoostingRegressor(),
         "adaboost": AdaBoostRegressor(),
-        "linear_regression": LinearRegression(),
+        "linear_regression": LinearRegression(n_jobs=-1),
         "ridge": Ridge(),
         "lasso": Lasso(),
         "elastic_net": ElasticNet(),
