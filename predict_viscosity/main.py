@@ -25,7 +25,7 @@ USE_FEATURE_IMPORTANCE = False  # Toggle this to use the features from the file
 NUM_FEATURES = 100
 
 # Add a switch to choose between CatBoost-only and committee approach
-USE_COMMITTEE = False  # Set to False to use only CatBoost
+USE_COMMITTEE = True  # Set to False to use only CatBoost
 
 # Confidence Interval Settings
 NUM_RUNS = 50

@@ -11,7 +11,7 @@ from tqdm import tqdm
 # Define the committee of models
 MODELS = {
     # "catboost": CatBoostRegressor(verbose=0),
-    "linear_regression": LinearRegression(),
+    "linear_regression": LinearRegression(n_jobs=-1),
     # "ridge": Ridge(),
     "xgboost": XGBRegressor(objective='reg:gamma'),
 }
