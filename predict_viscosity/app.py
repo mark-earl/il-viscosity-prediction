@@ -3,6 +3,9 @@ import pandas as pd
 from data_preprocessing import load_data, preprocess_data, select_features
 from model_training import train_model, split_data
 import json
+from visualization import plot_results
+from committee_confidence_interval import run_single_committee_model
+from confidence_interval import calculate_confidence_interval, plot_confidence_interval
 
 # Streamlit App Title
 st.title("Ionic Liquid Viscosity Prediction")
@@ -66,7 +69,7 @@ if data_file:
         else:
             # Manual feature selection
             manually_select_features = True
-            selected_features = st.sidebar.multiselect("Manually Select Features", df.columns.tolist())
+            selected_features = st.sidebar.multiselect("Manually Select Features", df.columns.tolist(),placeholder="Select Features")
 
     # Step 1: Preprocess data
     included_data, excluded_data = preprocess_data(df)
@@ -119,26 +122,53 @@ if data_file:
 
             st.sidebar.header("Step 4: Select Model")
 
-            model_name = st.sidebar.selectbox("Select Model", list(MODELS.values()))
-            model_key = next(key for key, value in MODELS.items() if value == model_name)
+            use_comittee = False
+            if st.sidebar.checkbox("Use Committee"):
+                use_comittee = True
+                committees = st.sidebar.multiselect("Select Committee Models", MODELS.values(),placeholder="Select Models")
+
+            else:
+                model_name = st.sidebar.selectbox("Select Model", list(MODELS.values()))
+                model_key = next(key for key, value in MODELS.items() if value == model_name)
+
+            run_ci = False
+            if st.sidebar.checkbox("Generate Confidence Interval"):
+                run_ci = True
+                num_runs = st.sidebar.slider("Number of Runs", min_value=0, max_value=250, value=1, step=5)
 
             st.sidebar.header("Step 5: Train Model")
 
             if st.sidebar.button("Train Model"):
-                if not X_included.empty:
+
+                if run_ci:
+                    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, num_runs, model_key)
+
+                    if use_comittee:
+                        st.write(f"Commite of: {', '.join(committees)} trained successfully!")
+                    else:
+                        st.write(f"{model_name} trained successfully!")
+
+                    st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2))
+
+                elif not X_included.empty:
                     # Train-test split
                     X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 
-                    # Train the model (default: "catboost")
+                    if use_comittee:
+                        y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test)
+                        model_name = f"Commite of: {', '.join(committees)}"
 
-                    model = train_model(X_train, y_train, model_key)
+                    else:
+                        model = train_model(X_train, y_train, model_key)
+                        y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
+
                     st.write(f"{model_name} trained successfully!")
 
                     # Evaluate the model
-                    y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
-                    # st.write("R² Score on Test Data:", round(r2_rand, 3))
                     st.header("R² Score on Test Data:")
                     s = f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>"
                     st.markdown(s, unsafe_allow_html=True)
+
+                    st.pyplot(plot_results(included_data, excluded_data, y_test, y_pred, r2_rand))
                 else:
                     st.error("No valid features selected for training.")

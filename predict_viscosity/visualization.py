@@ -8,7 +8,7 @@ def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):
     y_test_values = y_test
     y_pred_values = y_pred
 
-    plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(12,8))
 
     # Plot excluded data (gray)
     plt.scatter(
@@ -44,3 +44,5 @@ def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):
     plt.legend()
     plt.tight_layout()
     plt.show()
+
+    return fig
