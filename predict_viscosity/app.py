@@ -5,7 +5,7 @@ from model_training import train_model, split_data
 import json
 
 # Streamlit App Title
-st.title("Ionic Liquid Viscosity Prediction Tool")
+st.title("Ionic Liquid Viscosity Prediction")
 
 # Sidebar Configuration
 st.sidebar.title("Configuration")
@@ -25,7 +25,7 @@ if data_file:
     # Load the uploaded dataset
     df = load_data(data_file)
 
-    st.write("Dataset Preview:")
+    st.header("Dataset Preview:")
     st.dataframe(df)
 
     st.sidebar.header("Step 2: Select Features")
@@ -81,7 +81,8 @@ if data_file:
         X_included = select_features(included_data, preset_key, manually_select_features, manually_selected_features, feature_importance_file)
         y_included = included_data["Reference Viscosity Log"]  # Assuming this is your target column
         data_ready = True
-        st.write("Features Selected for Model Training:", X_included.columns.tolist())
+        st.header("Features Selected for Model Training:")
+        st.write(X_included.columns.tolist())
     else:
         st.warning("No features selected. Please choose preset, upload importance file, or select manually.")
 
@@ -135,6 +136,9 @@ if data_file:
 
                     # Evaluate the model
                     y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
-                    st.write("R² Score on Test Data:", round(r2_rand, 3))
+                    # st.write("R² Score on Test Data:", round(r2_rand, 3))
+                    st.header("R² Score on Test Data:")
+                    s = f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>"
+                    st.markdown(s, unsafe_allow_html=True)
                 else:
                     st.error("No valid features selected for training.")
