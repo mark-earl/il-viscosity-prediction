@@ -43,6 +43,7 @@ def calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS):
 
 
 def plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2):
+    fig = plt.figure()
     plt.plot(r2_scores, marker='o', linestyle='-', color='blue', label="R² Scores")
     plt.axhspan(confidence_interval[0], confidence_interval[1], color='yellow', alpha=0.3, label=f"95% CI: ({confidence_interval[0]:.2f}, {confidence_interval[1]:.2f})")
     plt.axhline(mean_r2, color='green', linestyle='-', label=f"Mean R²: {mean_r2:.2f}")
@@ -53,6 +54,7 @@ def plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2):
     plt.legend()
     plt.tight_layout()
     plt.show()
+    return fig
 
 def run_single_committee_model(X_train, X_test, y_train, y_test):
     """Train and predict using a single committee run."""

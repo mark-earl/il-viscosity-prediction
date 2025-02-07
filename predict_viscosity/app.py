@@ -4,7 +4,7 @@ from data_preprocessing import load_data, preprocess_data, select_features
 from model_training import train_model, split_data
 import json
 from visualization import plot_results
-from committee_confidence_interval import run_single_committee_model
+from committee_confidence_interval import run_single_committee_model, plot_committee_confidence_interval, calculate_committee_confidence_interval
 from confidence_interval import calculate_confidence_interval, plot_confidence_interval
 
 # Streamlit App Title
@@ -141,14 +141,17 @@ if data_file:
             if st.sidebar.button("Train Model"):
 
                 if run_ci:
-                    mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, num_runs, model_key)
 
                     if use_comittee:
+                        mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, num_runs)
                         st.write(f"Commite of: {', '.join(committees)} trained successfully!")
-                    else:
-                        st.write(f"{model_name} trained successfully!")
+                        st.pyplot(plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2))
 
-                    st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2))
+                    else:
+                        mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(X_included, y_included, num_runs, model_key)
+                        st.write(f"{model_name} trained successfully!")
+                        st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2))
+
 
                 elif not X_included.empty:
                     # Train-test split
