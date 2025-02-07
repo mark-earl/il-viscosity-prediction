@@ -15,11 +15,18 @@ st.sidebar.header("Step 1: Upload Dataset")
 # File Input for Data
 data_file = st.sidebar.file_uploader("Upload Dataset (Excel)", type=["xlsx"])
 
+@st.cache_data
+def load_data(data_file):
+    df = pd.read_excel(data_file)
+    return df
+
 if data_file:
 
     # Load the uploaded dataset
-    df = pd.read_excel(data_file)
-    st.write("Dataset Preview:", df.head())
+    df = load_data(data_file)
+
+    st.write("Dataset Preview:")
+    st.dataframe(df)
 
     st.sidebar.header("Step 2: Select Features")
 
@@ -82,42 +89,52 @@ if data_file:
     # Placeholder for Model Training
     if data_ready:
 
-        MODELS = {
-            "catboost" : "CatBoost",
-            "xgboost" : "XGBoost",
-            "random_forest" : "Random Forest",
-            "lightgbm" : "LightGBM",
-            "gradient_boosting" : "Gradient Boosting",
-            "adaboost" : "ADABoost",
-            "linear_regression" : "Linear Regression",
-            "ridge" : "Ridge",
-            "lasso" : "Lasso",
-            "elastic_net" : "Elastic Net",
-            "svr" : "Support Vector Regression",
-            "knn" : "K-Nearest-Neighbors",
-            "decision_tree" : "Decision Trees",
-            "mlp" : "Multi-Layer Perceptron"
-        }
+        st.sidebar.header("Step 3: Choose Desired Output")
 
-        st.sidebar.header("Step 3: Select Model")
+        output = st.sidebar.radio("Output",["Run Machine Learning", "Perform Data Analysis"])
 
-        model_name = st.sidebar.selectbox("Select Model", list(MODELS.values()))
-        model_key = next(key for key, value in MODELS.items() if value == model_name)
 
-        st.sidebar.header("Step 4: Train Model")
+        if output == "Perform Data Analysis":
+            st.sidebar.header("Step 4: Choose Data Analysis Option")
 
-        if st.sidebar.button("Train Model"):
-            if not X_included.empty:
-                # Train-test split
-                X_train, X_test, y_train, y_test = split_data(X_included, y_included)
+        elif output == "Run Machine Learning":
 
-                # Train the model (default: "catboost")
+            MODELS = {
+                "catboost" : "CatBoost",
+                "xgboost" : "XGBoost",
+                "random_forest" : "Random Forest",
+                "lightgbm" : "LightGBM",
+                "gradient_boosting" : "Gradient Boosting",
+                "adaboost" : "ADABoost",
+                "linear_regression" : "Linear Regression",
+                "ridge" : "Ridge",
+                "lasso" : "Lasso",
+                "elastic_net" : "Elastic Net",
+                "svr" : "Support Vector Regression",
+                "knn" : "K-Nearest-Neighbors",
+                "decision_tree" : "Decision Trees",
+                "mlp" : "Multi-Layer Perceptron"
+            }
 
-                model = train_model(X_train, y_train, model_key)
-                st.write(f"{model_name} trained successfully!")
+            st.sidebar.header("Step 4: Select Model")
 
-                # Evaluate the model
-                y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
-                st.write("R² Score on Test Data:", round(r2_rand, 3))
-            else:
-                st.error("No valid features selected for training.")
+            model_name = st.sidebar.selectbox("Select Model", list(MODELS.values()))
+            model_key = next(key for key, value in MODELS.items() if value == model_name)
+
+            st.sidebar.header("Step 5: Train Model")
+
+            if st.sidebar.button("Train Model"):
+                if not X_included.empty:
+                    # Train-test split
+                    X_train, X_test, y_train, y_test = split_data(X_included, y_included)
+
+                    # Train the model (default: "catboost")
+
+                    model = train_model(X_train, y_train, model_key)
+                    st.write(f"{model_name} trained successfully!")
+
+                    # Evaluate the model
+                    y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
+                    st.write("R² Score on Test Data:", round(r2_rand, 3))
+                else:
+                    st.error("No valid features selected for training.")
