@@ -1,33 +1,51 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-import json
+import numpy as np
+import matplotlib.pyplot as plt
+from catboost import CatBoostRegressor
+from sklearn.preprocessing import LabelEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.feature_selection import SelectFromModel
+import seaborn as sns
 
-def calculate_feature_importance(model, X_included, NUM_FEATURES, output_path="feature_importances.json"):
-    feature_importances = model.get_feature_importance()
-    feature_names = X_included.columns
+# Load the data
+data_path = 'data/xlsx/working-ils_v2.xlsx'
+df = pd.read_excel(data_path)
 
-    feature_importance_df = pd.DataFrame({
-        'Feature': feature_names,
-        'Importance': feature_importances
-    }).sort_values(by='Importance', ascending=False)
+# Specify columns to drop
+cols_to_drop = ['Cation', 'Anion', 'Reference Viscosity', 'Excluded IL', 'T / K']  # Example columns
+df = df.drop(columns=[col for col in cols_to_drop if col in df.columns])
 
-    # Export to JSON
-    top_features = feature_importance_df.head(NUM_FEATURES).to_dict(orient='records')
-    with open(output_path, 'w') as f:
-        json.dump(top_features, f, indent=4)
+# Drop rows with missing target variable
+df = df.dropna(subset=['Reference Viscosity Log'])
 
-    print(f"Feature importances exported to {output_path}")
-    return feature_importance_df
+# Separate features and target
+X = df.drop('Reference Viscosity Log', axis=1)
+y = df['Reference Viscosity Log']
 
-def plot_feature_importance(feature_importance_df, NUM_FEATURES):
-    plt.figure(figsize=(12, 8))
-    plt.barh(
-        feature_importance_df['Feature'].head(NUM_FEATURES)[::-1],  # Reverse order for horizontal bar plot
-        feature_importance_df['Importance'].head(NUM_FEATURES)[::-1],
-        color='skyblue'
-    )
-    plt.xlabel('Feature Importance')
-    plt.ylabel('Feature Name')
-    plt.title(f'Top {NUM_FEATURES} Important Features')
-    plt.tight_layout()
-    plt.show()
+# Handle missing values
+imputer = SimpleImputer(strategy='mean')
+X_imputed = imputer.fit_transform(X)
+
+# Encode categorical columns (if any)
+X_encoded = pd.get_dummies(X)
+
+# Train a Random Forest model to compute feature importance
+model = CatBoostRegressor()
+model.fit(X_encoded, y)
+
+# Extract feature importance
+feature_importance = pd.DataFrame({
+    'Feature': X_encoded.columns,
+    'Importance': model.feature_importances_
+}).sort_values(by='Importance', ascending=False)
+
+# Plot feature importance
+plt.figure(figsize=(10, 6))
+sns.barplot(data=feature_importance.head(100), x='Importance', y='Feature', palette='viridis')
+plt.title('Top 100 Features for Predicting Reference Viscosity Log')
+plt.tight_layout()
+plt.show()
+
+# Save the feature importance list
+feature_importance.to_excel('data/xlsx/feature_importance.xlsx', index=False)
+print("Feature importance analysis saved to feature_importance.xlsx.")

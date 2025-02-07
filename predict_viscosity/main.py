@@ -64,10 +64,6 @@ X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 # # Step 7: Plot results
 # plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 
-# Optional: Feature importance and confidence interval
-# feature_importance_df = calculate_feature_importance(model, X_included, NUM_FEATURES_FOR_THIS_ONE)
-# plot_feature_importance(feature_importance_df, NUM_FEATURES_FOR_THIS_ONE)
-
 if USE_COMMITTEE:
     mean_r2, confidence_interval, r2_scores = calculate_committee_confidence_interval(X_included, y_included, NUM_RUNS)
     plot_committee_confidence_interval(r2_scores, confidence_interval, mean_r2)
