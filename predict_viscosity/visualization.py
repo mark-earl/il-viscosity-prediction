@@ -3,8 +3,10 @@ import numpy as np
 
 # Plot data
 def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):
+
     included_viscosities = included_data['Reference Viscosity Log']
     excluded_viscosities = excluded_data['Reference Viscosity Log']
+
     y_test_values = y_test
     y_pred_values = y_pred
 
