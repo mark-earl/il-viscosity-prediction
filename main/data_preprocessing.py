@@ -2,7 +2,7 @@ def preprocess_data(df):
     excluded_il_col = df["Excluded IL"]
     # Drop unnecessary columns
     df = df.drop(columns=[
-        'IL ID', 'Cation', 'Anion', 'Reference Viscosity'
+        'IL ID', 'Cation', 'Anion', 'cation_Family', 'anion_Family', 'Reference Viscosity'
     ])
 
     included_data = df[excluded_il_col == False]
