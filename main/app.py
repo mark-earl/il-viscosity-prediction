@@ -2,15 +2,17 @@ import streamlit as st
 import pandas as pd
 from data_preprocessing import preprocess_data, select_features
 from model_training import train_model, split_data
-from visualization import plot_results
+from visualization import (
+    plot_results,
+    plot_confidence_interval
+)
 from data_analysis import (
-    perform_data_analysis,
+    plot_graph_relationships,
     plot_feature_importance,
     plot_correlation_heatmap
 )
 from confidence_interval_utils import (
     calculate_confidence_interval,
-    plot_confidence_interval,
     run_single_committee_model
 )
 
@@ -72,6 +74,11 @@ def data_analysis_step(X_included, y_included, included_data, excluded_data):
         num_heatmap_features = st.sidebar.slider("Number of Features for Heatmap", min_value=2, max_value=len(X_included.columns), value=10)
         if st.sidebar.button("Generate Heatmap"):
             plot_correlation_heatmap(X_included, y_included, num_heatmap_features)
+
+    graph = st.sidebar.checkbox("Generate Graph")
+    if graph:
+        if st.sidebar.button("Generate Graph"):
+            plot_graph_relationships(X_included)
 
 def select_features_step(df):
     st.sidebar.header("Step 2: Select Features")

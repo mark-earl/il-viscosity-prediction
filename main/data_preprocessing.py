@@ -1,8 +1,6 @@
-import pandas as pd
-
-# Drop unnecessary columns
 def preprocess_data(df):
     excluded_il_col = df["Excluded IL"]
+    # Drop unnecessary columns
     df = df.drop(columns=[
         'IL ID', 'Cation', 'Anion', 'Reference Viscosity'
     ])

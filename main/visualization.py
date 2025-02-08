@@ -47,3 +47,19 @@ def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):
     plt.show()
 
     return fig
+
+def plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix=""):
+    """Plots R² scores with a confidence interval."""
+    fig = plt.figure()
+    plt.plot(r2_scores, marker='o', linestyle='-', color='blue', label="R² Scores")
+    plt.axhspan(confidence_interval[0], confidence_interval[1], color='yellow', alpha=0.3,
+                 label=f"95% CI: ({confidence_interval[0]:.2f}, {confidence_interval[1]:.2f})")
+    plt.axhline(mean_r2, color='green', linestyle='-', label=f"Mean R²: {mean_r2:.2f}")
+
+    plt.title(f"R² Scores Across Runs with 95% Confidence Interval {title_suffix}")
+    plt.xlabel("Run Index")
+    plt.ylabel("R² Values")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+    return fig
