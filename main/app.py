@@ -91,7 +91,7 @@ def data_analysis_step(X_included, y_included, included_data, excluded_data, sel
                 committees = st.sidebar.multiselect("Select Committee Models", MODELS_WITH_FEATURE_IMPORTANCE.values(), placeholder="Select Models")
                 committee_keys = [key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value in committees]
             else:
-                model_name = st.sidebar.selectbox("Select Model", list(MODELS_WITH_FEATURE_IMPORTANCE.values()))
+                model_name = st.sidebar.selectbox("Select Model for Feature Importance Analysis", list(MODELS_WITH_FEATURE_IMPORTANCE.values()))
                 model_key = next(key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value == model_name)
             if st.sidebar.button("Analyze Features"):
                 plot_feature_importance(X_included, y_included, num_features, use_committee, committee_keys, model_key)
@@ -149,7 +149,7 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
         model_key = next(key for key, value in MODELS.items() if value == model_name)
 
     run_ci = st.sidebar.checkbox("Generate Confidence Interval")
-    num_runs = st.sidebar.slider("Number of Runs", min_value=1, max_value=250, value=1, step=5) if run_ci else 0
+    num_runs = st.sidebar.slider("Number of Runs", min_value=0, max_value=250, value=1, step=5) if run_ci else 0
 
     st.sidebar.header("Step 5: Train Model")
 

@@ -54,6 +54,22 @@ def plot_feature_importance(X, y, num_features, use_committee=False, committee_m
         file_name=f"top_{num_features}_features_plot.png",
         mime="image/png"
     )
+
+    # Create a DataFrame only for the top selected features
+    top_features_df = feature_importance.head(num_features)
+
+    # Allow the user to download the feature importance as an Excel file
+    buffer = io.BytesIO()
+    top_features_df.to_excel(buffer, index=False, engine='xlsxwriter')
+    buffer.seek(0)
+
+    st.download_button(
+        label="Download Top Features as Excel",
+        data=buffer,
+        file_name=f"top_{num_features}_features.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
     progress.progress(100)
 
 
