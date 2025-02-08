@@ -100,6 +100,7 @@ def select_features_step(df):
         selected_features = st.sidebar.multiselect("Manually Select Features", df.columns.tolist(), placeholder="Select Features")
         return None, selected_features, None
 
+    return None, None, None
 
 def model_training_step(X_included, y_included, included_data, excluded_data):
     st.sidebar.header("Step 4: Select Model")
