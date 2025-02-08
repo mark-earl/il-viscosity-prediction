@@ -4,3 +4,4 @@ xgboost
 lightgbm
 seaborn
 networkx
+openpyxl
