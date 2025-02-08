@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import json
-from data_preprocessing import load_data, preprocess_data, select_features
+from data_preprocessing import preprocess_data, select_features
 from model_training import train_model, split_data
 from visualization import plot_results
 from confidence_interval_utils import (

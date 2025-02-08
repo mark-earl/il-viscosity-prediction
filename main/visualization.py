@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 
 # Plot data
 def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):

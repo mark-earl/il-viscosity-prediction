@@ -1,9 +1,4 @@
 import pandas as pd
-import json
-
-# Load the data from the Excel file
-def load_data(data_path):
-    return pd.read_excel(data_path)
 
 # Drop unnecessary columns
 def preprocess_data(df):
