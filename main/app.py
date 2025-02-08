@@ -114,7 +114,6 @@ def select_features_step(df):
     st.sidebar.header("Step 2: Select Features")
     feature_selection_method = st.sidebar.radio("Feature Selection Method",["Use Feature Preset","Use Feature Importance File", "Manually Select Features"])
 
-
     if feature_selection_method == "Use Feature Preset":
         selected_preset = st.sidebar.selectbox("Select Feature Set", list(FEATURE_PRESET_OPTIONS.values()), index=2)
         preset_key = next(key for key, value in FEATURE_PRESET_OPTIONS.items() if value == selected_preset)

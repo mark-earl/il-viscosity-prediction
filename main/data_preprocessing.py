@@ -1,19 +1,30 @@
+import streamlit as st
+
+@st.cache_data
 def preprocess_data(df):
     excluded_il_col = df["Excluded IL"]
+
+    columns_to_drop = ['IL ID', 'Cation', 'Anion', 'Reference Viscosity']
+    missing_columns = [col for col in columns_to_drop if col not in df.columns]
+
+    if missing_columns:
+        st.warning(f"The following columns were not found and skipped: {', '.join(missing_columns)}")
+
     # Drop unnecessary columns
-    df = df.drop(columns=[
-        'IL ID', 'Cation', 'Anion', 'cation_Family', 'anion_Family', 'Reference Viscosity'
-    ])
+    df = df.drop(columns=columns_to_drop, errors='ignore')
 
     included_data = df[excluded_il_col == False]
     excluded_data = df[excluded_il_col == True]
 
     return included_data, excluded_data
 
+@st.cache_data
 def select_features(df, preset_key, manually_select_features, manually_selected_features, feature_json_path):
     # Define functional group and molecular descriptor columns
     functional_group_cols = df.loc[:, "cation_Im13":"anion_cycNCH2"].columns
-    molecular_descriptor_cols = df.loc[:, "cation_Charge":"anion_Molecular Radius"].columns
+
+    # working-ils_v2
+    molecular_descriptor_cols = df.loc[:, "cation_MaxAbsEStateIndex":"anion_Molecular Radius"].columns
 
     if preset_key:
         # Select features based on the user's choice

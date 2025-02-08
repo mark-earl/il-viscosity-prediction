@@ -28,11 +28,6 @@ merged_data['Reference Viscosity Log'] = np.log(merged_data['Reference Viscosity
 # Remove experimental temperature and viscosity columns if they exist
 merged_data.drop(columns=['T / K', 'η / mPa s'], errors='ignore', inplace=True)
 
-# Ensure "cation_Family" and "anion_Family" are reordered immediately after "Cation" and "Anion"
-# priority_cols = ['Cation', 'Anion', 'cation_Family', 'anion_Family']
-# reordered_cols = priority_cols + [col for col in merged_data.columns if col not in priority_cols]
-# merged_data = merged_data[reordered_cols]
-
 # Save the updated RDKit file with the new column order
 merged_data.to_excel(updated_rdkit_path, index=False)
 
