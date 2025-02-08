@@ -34,6 +34,16 @@ MODELS = {
     "mlp": "Multi-Layer Perceptron"
 }
 
+MODELS_WITH_FEATURE_IMPORTANCE = {
+    "catboost": "CatBoost",
+    "xgboost": "XGBoost",
+    "random_forest": "Random Forest",
+    "lightgbm": "LightGBM",
+    "gradient_boosting": "Gradient Boosting",
+    "adaboost": "ADABoost",
+    "decision_tree": "Decision Trees",
+}
+
 FEATURE_PRESET_OPTIONS = {
     "functional_groups": "Functional Groups",
     "molecular_descriptors": "Molecular Descriptors",
@@ -59,15 +69,23 @@ def load_and_preview_dataset():
         return df
     return None
 
-def data_analysis_step(X_included, y_included, included_data, excluded_data):
+def data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features):
     st.sidebar.header("Data Analysis Options")
 
     feature_importance = st.sidebar.checkbox("Analyze Feature Importance")
     if feature_importance:
         num_features = st.sidebar.slider("Number of features to display", min_value=1, max_value=len(X_included.columns), value=1)
         if num_features:
+            committee_keys = model_key = None
+            use_committee = st.sidebar.checkbox("Use Committee")
+            if use_committee:
+                committees = st.sidebar.multiselect("Select Committee Models", MODELS_WITH_FEATURE_IMPORTANCE.values(), placeholder="Select Models")
+                committee_keys = [key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value in committees]
+            else:
+                model_name = st.sidebar.selectbox("Select Model", list(MODELS_WITH_FEATURE_IMPORTANCE.values()))
+                model_key = next(key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value == model_name)
             if st.sidebar.button("Analyze Features"):
-                plot_feature_importance(X_included, y_included, num_features)
+                plot_feature_importance(X_included, y_included, num_features, use_committee, committee_keys, model_key)
 
     corr_heatmap = st.sidebar.checkbox("Generate Correlational Heatmap")
     if corr_heatmap:
@@ -78,7 +96,10 @@ def data_analysis_step(X_included, y_included, included_data, excluded_data):
     graph = st.sidebar.checkbox("Generate Graph")
     if graph:
         if st.sidebar.button("Generate Graph"):
-            plot_graph_relationships(X_included)
+            if selected_features:
+                plot_graph_relationships(X_included, selected_features)
+            else:
+                st.warning("Please select at least one feature for graph generation.")
 
 def select_features_step(df):
     st.sidebar.header("Step 2: Select Features")
@@ -125,26 +146,26 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
                     X_included, y_included, num_runs, committee_models=committee_keys
                 )
                 st.write(f"Committee of: {', '.join(committees)} trained successfully!")
-                st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)"))
+                plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)")
             else:
                 mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
                     X_included, y_included, num_runs, model_name=model_key
                 )
                 st.write(f"{model_name} trained successfully!")
-                st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2))
+                plot_confidence_interval(r2_scores, confidence_interval, mean_r2)
         else:
             X_train, X_test, y_train, y_test = split_data(X_included, y_included)
             if use_committee:
                 y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, committee_keys)
                 st.write(f"Committee of: {', '.join(committees)} trained successfully!")
-                st.pyplot(plot_results(included_data, excluded_data, y_test, y_pred, r2_rand))
+                plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
             else:
                 model = train_model(X_train, y_train, model_key)
                 y_pred, r2_rand = model.predict(X_test), model.score(X_test, y_test)
                 st.write(f"{model_name} trained successfully!")
                 st.header("R² Score on Test Data:")
                 st.markdown(f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>", unsafe_allow_html=True)
-                st.pyplot(plot_results(included_data, excluded_data, y_test, y_pred, r2_rand))
+                plot_results(included_data, excluded_data, y_test, y_pred, r2_rand)
 
 
 def main():
@@ -168,7 +189,7 @@ def main():
                 model_training_step(X_included, y_included, included_data, excluded_data)
 
             elif output == "Perform Data Analysis":
-                data_analysis_step(X_included, y_included, included_data, excluded_data)
+                data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features)
         else:
             st.warning("No features selected. Please choose a preset, upload importance file, or select manually.")
 
