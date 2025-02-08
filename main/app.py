@@ -1,9 +1,13 @@
 import streamlit as st
 import pandas as pd
-import json
 from data_preprocessing import preprocess_data, select_features
 from model_training import train_model, split_data
 from visualization import plot_results
+from data_analysis import (
+    perform_data_analysis,
+    plot_feature_importance,
+    plot_correlation_heatmap
+)
 from confidence_interval_utils import (
     calculate_confidence_interval,
     plot_confidence_interval,
@@ -44,6 +48,7 @@ def load_uploaded_data(data_file):
 
 
 def load_and_preview_dataset():
+    st.sidebar.header("Step 1: Upload Dataset")
     data_file = st.sidebar.file_uploader("Upload Dataset (Excel)", type=["xlsx"])
     if data_file:
         df = load_uploaded_data(data_file)
@@ -52,27 +57,41 @@ def load_and_preview_dataset():
         return df
     return None
 
+def data_analysis_step(X_included, y_included, included_data, excluded_data):
+    st.sidebar.header("Data Analysis Options")
+
+    feature_importance = st.sidebar.checkbox("Analyze Feature Importance")
+    if feature_importance:
+        num_features = st.sidebar.slider("Number of features to display", min_value=1, max_value=len(X_included.columns), value=1)
+        if num_features:
+            if st.sidebar.button("Analyze Features"):
+                plot_feature_importance(X_included, y_included, num_features)
+
+    corr_heatmap = st.sidebar.checkbox("Generate Correlational Heatmap")
+    if corr_heatmap:
+        num_heatmap_features = st.sidebar.slider("Number of Features for Heatmap", min_value=2, max_value=len(X_included.columns), value=10)
+        if st.sidebar.button("Generate Heatmap"):
+            plot_correlation_heatmap(X_included, y_included, num_heatmap_features)
 
 def select_features_step(df):
     st.sidebar.header("Step 2: Select Features")
-    use_preset_checkbox = st.sidebar.checkbox("Use Feature Preset")
+    feature_selection_method = st.sidebar.radio("Feature Selection Method",["Use Feature Preset","Use Feature Importance File", "Manually Select Features"])
 
-    if use_preset_checkbox:
+    if feature_selection_method == "Use Feature Preset":
         selected_preset = st.sidebar.selectbox("Select Feature Set", list(FEATURE_PRESET_OPTIONS.values()), index=2)
         preset_key = next(key for key, value in FEATURE_PRESET_OPTIONS.items() if value == selected_preset)
         return preset_key, None, None
 
-    use_importance_file_checkbox = st.sidebar.checkbox("Use Feature Importance File")
-    if use_importance_file_checkbox:
-        feature_importance_file = st.sidebar.file_uploader("Upload Feature Importance File (JSON)", type=["json"])
+    elif feature_selection_method == "Use Feature Importance File":
+        feature_importance_file = st.sidebar.file_uploader("Upload Feature Importance File (Excel)", type=["xlsx"])
         if feature_importance_file:
-            feature_importance_data = json.load(feature_importance_file)
-            selected_features = [item["Feature"] for item in feature_importance_data]
-            st.write("Selected Features from Importance File:", selected_features)
+            feature_importance_data = load_uploaded_data(feature_importance_file)
+            selected_features = list(feature_importance_data['Feature'])
             return None, selected_features, None
 
-    selected_features = st.sidebar.multiselect("Manually Select Features", df.columns.tolist(), placeholder="Select Features")
-    return None, selected_features, None
+    elif feature_selection_method == "Manually Select Features":
+        selected_features = st.sidebar.multiselect("Manually Select Features", df.columns.tolist(), placeholder="Select Features")
+        return None, selected_features, None
 
 
 def model_training_step(X_included, y_included, included_data, excluded_data):
@@ -131,9 +150,17 @@ def main():
             manually_selected_features = selected_features if selected_features else None
             X_included = select_features(included_data, preset_key, bool(selected_features), manually_selected_features, feature_importance_file)
             y_included = included_data["Reference Viscosity Log"]  # Assuming this is the target column
-            st.header("Features Selected for Model Training:")
+            st.header("Features Selected")
             st.write(X_included.columns.tolist())
-            model_training_step(X_included, y_included, included_data, excluded_data)
+
+            st.sidebar.header("Step 3: Choose Desired Output")
+            output = st.sidebar.radio("Output",["Run Machine Learning", "Perform Data Analysis"])
+
+            if output == "Run Machine Learning":
+                model_training_step(X_included, y_included, included_data, excluded_data)
+
+            elif output == "Perform Data Analysis":
+                data_analysis_step(X_included, y_included, included_data, excluded_data)
         else:
             st.warning("No features selected. Please choose a preset, upload importance file, or select manually.")
 
