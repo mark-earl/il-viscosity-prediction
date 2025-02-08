@@ -20,27 +20,22 @@ def plot_feature_importance(X, y, num_features):
         'Importance': model.feature_importances_
     }).sort_values(by='Importance', ascending=False)
 
-    # Plot the feature importance
     plt.figure(figsize=(10, 6))
     sns.barplot(data=feature_importance.head(num_features), x='Importance', y='Feature', palette='viridis')
     plt.title(f'Top {num_features} Features for Target Prediction')
     plt.tight_layout()
     st.pyplot(plt.gcf())
-    plt.clf()
 
-    # Create a DataFrame only for the top selected features
-    top_features_df = feature_importance.head(num_features)
-
-    # Allow the user to download the feature importance as an Excel file
+    # Save plot as PNG
     buffer = io.BytesIO()
-    top_features_df.to_excel(buffer, index=False, engine='xlsxwriter')
+    plt.savefig(buffer, format="png")
     buffer.seek(0)
 
     st.download_button(
-        label="Download Top Features as Excel",
+        label="Download Feature Importance Plot as PNG",
         data=buffer,
-        file_name=f"top_{num_features}_features.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        file_name=f"top_{num_features}_features_plot.png",
+        mime="image/png"
     )
     progress.progress(100)
 
@@ -59,7 +54,6 @@ def plot_correlation_heatmap(X, y, num_features):
         'Importance': model.feature_importances_
     }).sort_values(by='Importance', ascending=False)
 
-    # Select the top num_features for the heatmap
     selected_features = feature_importance['Feature'].head(num_features).tolist()
     heatmap_df = X[selected_features].copy()
 
@@ -68,8 +62,18 @@ def plot_correlation_heatmap(X, y, num_features):
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=True)
     plt.title(f"Correlation Heatmap of Top {num_features} Features")
     st.pyplot(plt.gcf())
-    plt.clf()
 
+    # Save plot as PNG
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    st.download_button(
+        label="Download Heatmap as PNG",
+        data=buffer,
+        file_name=f"correlation_heatmap_{num_features}_features.png",
+        mime="image/png"
+    )
     progress.progress(100)
 
 
@@ -78,7 +82,6 @@ def plot_graph_relationships(X):
     progress = st.progress(0)
     G = nx.Graph()
 
-    # Add nodes (each row is a node)
     for i, row_data in X.iterrows():
         G.add_node(i, features=row_data.to_dict())
 
@@ -96,5 +99,17 @@ def plot_graph_relationships(X):
     nx.draw(G, pos, with_labels=False, node_size=50, node_color="skyblue", edge_color="gray")
     plt.title("Graph Relationships between Rows")
     st.pyplot(plt.gcf())
+
+    # Save plot as PNG
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+
+    st.download_button(
+        label="Download Graph Plot as PNG",
+        data=buffer,
+        file_name="graph_relationships_plot.png",
+        mime="image/png"
+    )
     plt.clf()
     progress.progress(100)
