@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 # Paths for input and output files
 ils_data_path = 'data/xlsx/raw.xlsx'
-ions_data_path = 'data/xlsx/ions_extended.xlsx'
+ions_data_path = 'data/xlsx/ions.xlsx'
 output_path = 'data/xlsx/ils.xlsx'
 
 # Load the relevant columns from the 'S8 | Modeling vs "raw" database' sheet

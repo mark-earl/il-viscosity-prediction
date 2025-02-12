@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 # Load datasets
 dataset_path = 'data/xlsx/raw.xlsx'
-output_path = 'data/xlsx/ions_extended.xlsx'
+output_path = 'data/xlsx/ions.xlsx'
 
 # Read the original ions data and drop rows where the SMILES is empty
 df_ions = pd.read_excel(dataset_path, sheet_name='S2 | Ions').dropna(subset=["SMILES"])
