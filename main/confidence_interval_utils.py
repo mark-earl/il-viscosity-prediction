@@ -74,20 +74,31 @@ def calculate_confidence_interval(X_included, y_included, num_runs, model_name=N
     return mean_r2, confidence_interval, r2_scores
 
 def run_single_committee_model(X_train, X_test, y_train, y_test, models):
-    """Trains and evaluates a committee model."""
+    """Trains and evaluates a committee model with training and test predictions."""
+
     selected_models = {name: MODEL_REGISTRY[name] for name in models if name in MODEL_REGISTRY}
 
     if not selected_models:
         raise ValueError("No valid models found for the provided keys. Please check the model names.")
 
-    committee_predictions = np.zeros_like(y_test, dtype=float)
+    committee_train_predictions = np.zeros_like(y_train, dtype=float)
+    committee_test_predictions = np.zeros_like(y_test, dtype=float)
+
     progress_bar = st.progress(0)
 
     for i, (name, model) in enumerate(selected_models.items()):
         model.fit(X_train, y_train)
-        committee_predictions += model.predict(X_test) / len(selected_models)
+
+        # Predict for both training and test sets
+        committee_train_predictions += model.predict(X_train) / len(selected_models)
+        committee_test_predictions += model.predict(X_test) / len(selected_models)
+
+        # Update progress bar
         progress_bar.progress(int((i + 1) / len(selected_models) * 100))
 
     progress_bar.empty()
-    r2_rand = r2_score(y_test, committee_predictions)
-    return committee_predictions, r2_rand
+
+    # Compute R² score for test set
+    r2_rand = r2_score(y_test, committee_test_predictions)
+
+    return committee_train_predictions, committee_test_predictions, r2_rand

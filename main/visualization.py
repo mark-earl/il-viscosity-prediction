@@ -2,25 +2,22 @@ import io
 import matplotlib.pyplot as plt
 import streamlit as st
 
-def plot_results(included_data, excluded_data, y_test, y_pred, r2_rand):
+def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand):
     """Generates and allows download of a plot for log-scale predicted vs actual viscosities."""
-    included_viscosities = included_data['Reference Viscosity Log']
-    excluded_viscosities = excluded_data['Reference Viscosity Log']
-
-    y_test_values = y_test
-    y_pred_values = y_pred
 
     fig = plt.figure(figsize=(12, 8))
 
-    plt.scatter(excluded_viscosities, excluded_viscosities, alpha=0.6, color='gray', label="Excluded ILs")
-    plt.scatter(included_viscosities, included_viscosities, alpha=0.6, color='blue', label="Included ILs")
-    plt.scatter(y_pred_values, y_test_values, alpha=0.8, color='red', label=f"Test Data (R²: {r2_rand:.2f})")
+    # Plot training data in blue
+    plt.scatter(y_train_pred, y_train, alpha=0.6, color='blue', label="Training Data")
 
-    plt.plot(
-        [included_viscosities.min(), included_viscosities.max()],
-        [included_viscosities.min(), included_viscosities.max()],
-        'r--', lw=2, label="Ideal Fit"
-    )
+    # Plot test data in red
+    plt.scatter(y_pred, y_test, alpha=0.8, color='red', label=f"Test Data (R²: {r2_rand:.2f})")
+
+    # Ideal fit line
+    min_val = min(y_train.min(), y_test.min())
+    max_val = max(y_train.max(), y_test.max())
+
+    plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label="Ideal Fit")
 
     plt.title("Log-Scale Predicted vs Actual Viscosities")
     plt.xlabel("Predicted Log Viscosity (log10[mPa s])")

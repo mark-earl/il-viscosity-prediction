@@ -23,8 +23,11 @@ def select_features(df, preset_key, manually_select_features, manually_selected_
     # Define functional group and molecular descriptor columns
     functional_group_cols = df.loc[:, "cation_Im13":"anion_cycNCH2"].columns
 
+    # working-ils
+    molecular_descriptor_cols = df.loc[:, "cation_Charge":"anion_Molecular Radius"].columns
+
     # working-ils_v2
-    molecular_descriptor_cols = df.loc[:, "cation_MaxAbsEStateIndex":"anion_Molecular Radius"].columns
+    # molecular_descriptor_cols = df.loc[:, "cation_MaxAbsEStateIndex":"anion_Molecular Radius"].columns
 
     if preset_key:
         # Select features based on the user's choice
