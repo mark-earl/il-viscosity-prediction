@@ -41,6 +41,7 @@ def train_model(X_train, y_train, model_name="catboost", hyperparameters={}):
 
     # Instantiate the model with hyperparameters
     model = model_classes[model_name](**hyperparameters)
+
     model.fit(X_train, y_train)
 
     return model

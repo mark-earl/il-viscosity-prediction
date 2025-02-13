@@ -153,25 +153,27 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
         model_name = st.sidebar.selectbox("Select Model", list(MODELS.values()))
         model_key = next(key for key, value in MODELS.items() if value == model_name)
 
-        auto_tune = st.sidebar.checkbox("Automatically Optimize Hyperparameters")
-        if auto_tune:
-            n_trials = st.sidebar.slider("Number of Trials", min_value=10, max_value=100, value=30, step=10)
+        use_default_hyperparams = st.sidebar.checkbox("Use Default Hyperparameters", value=True)
 
-        # Manual tuning
-        else:
-            if model_key in MODEL_HYPERPARAMETERS:
-                st.sidebar.subheader(f"Hyperparameters for {model_name}")
+        if not use_default_hyperparams:
+            auto_tune = st.sidebar.checkbox("Automatically Optimize Hyperparameters")
 
-                for param, settings in MODEL_HYPERPARAMETERS[model_key].items():
-                    param_type, *values = settings
+            if auto_tune:
+                n_trials = st.sidebar.slider("Number of Trials", min_value=10, max_value=100, value=30, step=10)
+            else:
+                if model_key in MODEL_HYPERPARAMETERS:
+                    st.sidebar.subheader(f"Hyperparameters for {model_name}")
 
-                    if param_type == "slider":
-                        min_val, max_val, default_val, step = values
-                        hyperparameters[param] = st.sidebar.slider(param, min_val, max_val, default_val, step)
+                    for param, settings in MODEL_HYPERPARAMETERS[model_key].items():
+                        param_type, *values = settings
 
-                    elif param_type == "selectbox":
-                        options, default_val = values
-                        hyperparameters[param] = st.sidebar.selectbox(param, options, index=options.index(default_val))
+                        if param_type == "slider":
+                            min_val, max_val, default_val, step = values
+                            hyperparameters[param] = st.sidebar.slider(param, min_val, max_val, default_val, step)
+
+                        elif param_type == "selectbox":
+                            options, default_val = values
+                            hyperparameters[param] = st.sidebar.selectbox(param, options, index=options.index(default_val))
 
     run_ci = st.sidebar.checkbox("Generate Confidence Interval")
     num_runs = st.sidebar.slider("Number of Runs", min_value=0, max_value=250, value=1, step=5) if run_ci else 0
@@ -181,30 +183,27 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
     if st.sidebar.button("Train Model"):
         X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 
-        if auto_tune:
-            st.write("🔍 Optimizing hyperparameters... This may take a while.")
+        if not use_default_hyperparams:
+            if auto_tune:
+                st.write("🔍 Optimizing hyperparameters... This may take a while.")
+                hyperparameters = optimize_hyperparameters(model_key, X_train, y_train, n_trials)
+                st.success("Optimization Complete! Best Parameters Found.")
 
-            hyperparameters = optimize_hyperparameters(model_key, X_train, y_train, n_trials)
-            st.success("Optimization Complete! Best Parameters Found.")
+                params_json = json.dumps(hyperparameters, indent=4)
+                st.download_button("📥 Download Best Hyperparameters", params_json, "best_hyperparameters.json", "application/json")
 
-            # Convert parameters to JSON and allow download
-            params_json = json.dumps(hyperparameters, indent=4)
-            st.download_button("📥 Download Best Hyperparameters", params_json, "best_hyperparameters.json", "application/json")
-
-            st.json(hyperparameters)
+                st.json(hyperparameters)
 
         if use_committee:
             y_train_pred, y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, committee_keys)
         else:
-            model = train_model(X_train, y_train, model_key, hyperparameters)
+            model = train_model(X_train, y_train, model_key, hyperparameters if not use_default_hyperparams else {})
             y_train_pred, y_pred = model.predict(X_train), model.predict(X_test)
             r2_rand = model.score(X_test, y_test)
 
         st.header("R² Score on Test Data")
         st.markdown(f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>", unsafe_allow_html=True)
         plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand)
-
-
 
 def main():
     df = load_and_preview_dataset()
