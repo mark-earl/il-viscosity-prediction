@@ -196,14 +196,24 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
 
         if use_committee:
             y_train_pred, y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, committee_keys)
+            y_excluded_pred = None  # Committees might not support direct excluded data prediction
         else:
             model = train_model(X_train, y_train, model_key, hyperparameters if not use_default_hyperparams else {})
             y_train_pred, y_pred = model.predict(X_train), model.predict(X_test)
             r2_rand = model.score(X_test, y_test)
 
+            # Predict excluded data if available
+            if excluded_data is not None and not excluded_data.empty:
+                X_excluded = excluded_data.drop(columns=[y_included.name], errors='ignore')
+                y_excluded = excluded_data[y_included.name]
+                y_excluded_pred = model.predict(X_excluded)
+            else:
+                y_excluded, y_excluded_pred = None, None
+
         st.header("R² Score on Test Data")
         st.markdown(f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>", unsafe_allow_html=True)
-        plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand)
+        plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded, y_excluded_pred)
+
 
 def main():
     df = load_and_preview_dataset()

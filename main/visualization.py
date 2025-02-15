@@ -2,9 +2,14 @@ import io
 import matplotlib.pyplot as plt
 import streamlit as st
 
-def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand):
-    """Generates and allows download of a plot for log-scale predicted vs actual viscosities."""
+import io
+import matplotlib.pyplot as plt
+import streamlit as st
 
+def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded=None, y_excluded_pred=None):
+    """Generates and allows download of a plot for log-scale predicted vs actual viscosities,
+       including excluded data in gray.
+    """
     fig = plt.figure(figsize=(12, 8))
 
     # Plot training data in blue
@@ -13,9 +18,13 @@ def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand):
     # Plot test data in red
     plt.scatter(y_pred, y_test, alpha=0.8, color='red', label=f"Test Data (R²: {r2_rand:.2f})")
 
+    # Plot excluded data in gray if available
+    if y_excluded is not None and y_excluded_pred is not None:
+        plt.scatter(y_excluded_pred, y_excluded, alpha=0.6, color='gray', label="Excluded Data")
+
     # Ideal fit line
-    min_val = min(y_train.min(), y_test.min())
-    max_val = max(y_train.max(), y_test.max())
+    min_val = min(y_train.min(), y_test.min(), (y_excluded.min() if y_excluded is not None else float('inf')))
+    max_val = max(y_train.max(), y_test.max(), (y_excluded.max() if y_excluded is not None else float('-inf')))
 
     plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label="Ideal Fit")
 
