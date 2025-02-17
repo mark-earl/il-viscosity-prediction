@@ -1,6 +1,5 @@
 streamlit
 scikit-learn
-catboost
 xgboost
 lightgbm
 seaborn
@@ -8,3 +7,4 @@ networkx
 openpyxl
 xlsxwriter
 optuna
+catboost

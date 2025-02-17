@@ -1,2 +1,2 @@
-*.pkl
 catboost_info/
+.venv/
