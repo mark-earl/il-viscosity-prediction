@@ -175,6 +175,7 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
                             options, default_val = values
                             hyperparameters[param] = st.sidebar.selectbox(param, options, index=options.index(default_val))
 
+    # Confidence Interval Option
     run_ci = st.sidebar.checkbox("Generate Confidence Interval")
     num_runs = st.sidebar.slider("Number of Runs", min_value=0, max_value=250, value=1, step=5) if run_ci else 0
 
@@ -183,36 +184,43 @@ def model_training_step(X_included, y_included, included_data, excluded_data):
     if st.sidebar.button("Train Model"):
         X_train, X_test, y_train, y_test = split_data(X_included, y_included)
 
-        if not use_default_hyperparams:
-            if auto_tune:
-                st.write("🔍 Optimizing hyperparameters... This may take a while.")
-                hyperparameters = optimize_hyperparameters(model_key, X_train, y_train, n_trials)
-                st.success("Optimization Complete! Best Parameters Found.")
-
-                params_json = json.dumps(hyperparameters, indent=4)
-                st.download_button("📥 Download Best Hyperparameters", params_json, "best_hyperparameters.json", "application/json")
-
-                st.json(hyperparameters)
-
-        if use_committee:
-            y_train_pred, y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, committee_keys)
-            y_excluded_pred = None  # Committees might not support direct excluded data prediction
-        else:
-            model = train_model(X_train, y_train, model_key, hyperparameters if not use_default_hyperparams else {})
-            y_train_pred, y_pred = model.predict(X_train), model.predict(X_test)
-            r2_rand = model.score(X_test, y_test)
-
-            # Predict excluded data if available
-            if excluded_data is not None and not excluded_data.empty:
-                X_excluded = excluded_data.drop(columns=[y_included.name], errors='ignore')
-                y_excluded = excluded_data[y_included.name]
-                y_excluded_pred = model.predict(X_excluded)
+        if run_ci:
+            # Run confidence interval calculation
+            if use_committee:
+                mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
+                    X_included, y_included, num_runs, committee_models=committee_keys
+                )
+                st.write(f"Committee of: {', '.join(committees)} trained successfully!")
+                st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)"))
             else:
-                y_excluded, y_excluded_pred = None, None
+                mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
+                    X_included, y_included, num_runs, model_name=model_key
+                )
+                st.write(f"{model_name} trained successfully!")
+                st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2))
+        else:
+            # Train the model without confidence interval
+            if use_committee:
+                y_train_pred, y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, committee_keys)
+                st.write(f"Committee of: {', '.join(committees)} trained successfully!")
+                st.pyplot(plot_results(included_data, excluded_data, y_test, y_pred, r2_rand))
+            else:
+                model = train_model(X_train, y_train, model_key, hyperparameters if not use_default_hyperparams else {})
+                y_train_pred, y_pred = model.predict(X_train), model.predict(X_test)
+                r2_rand = model.score(X_test, y_test)
 
-        st.header("R² Score on Test Data")
-        st.markdown(f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>", unsafe_allow_html=True)
-        plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded, y_excluded_pred)
+                # Predict excluded data if available
+                if excluded_data is not None and not excluded_data.empty:
+                    X_excluded = excluded_data.drop(columns=[y_included.name], errors='ignore')
+                    y_excluded = excluded_data[y_included.name]
+                    y_excluded_pred = model.predict(X_excluded)
+                else:
+                    y_excluded, y_excluded_pred = None, None
+
+                st.header("R² Score on Test Data")
+                st.markdown(f"<p style='font-size:40px;color:#0096FF;'>{r2_rand:.3f}</p>", unsafe_allow_html=True)
+                st.pyplot(plot_results(included_data, excluded_data, y_test, y_pred, r2_rand, y_excluded, y_excluded_pred))
+
 
 
 def main():

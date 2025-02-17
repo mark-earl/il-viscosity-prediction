@@ -67,8 +67,8 @@ def calculate_confidence_interval(X_included, y_included, num_runs, model_name=N
         progress_bar.progress(int((i + 1) / num_runs * 100))
 
     mean_r2 = np.mean(r2_scores)
-    std_r2 = np.std(r2_scores, ddof=1)
-    confidence_interval = norm.interval(0.95, loc=mean_r2, scale=std_r2 / np.sqrt(num_runs))
+    std_r2 = np.std(r2_scores)
+    confidence_interval = norm.interval(0.95, loc=mean_r2, scale = std_r2)
 
     progress_bar.empty()
     return mean_r2, confidence_interval, r2_scores

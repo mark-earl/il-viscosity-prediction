@@ -63,8 +63,6 @@ def plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suff
     plt.legend()
     plt.tight_layout()
 
-    st.pyplot(fig)
-
     # Save plot as PNG and allow download
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png")
@@ -76,3 +74,5 @@ def plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suff
         file_name="confidence_interval_plot.png",
         mime="image/png"
     )
+
+    return fig
