@@ -19,7 +19,7 @@ MODEL_HYPERPARAMETERS = {
         "max_depth": ("slider", 2, 20, 10, 1),
         "min_samples_split": ("slider", 2, 10, 2, 1),
         "min_samples_leaf": ("slider", 1, 10, 1, 1),
-        "max_features": ("selectbox", ["auto", "sqrt", "log2"], "auto")
+        "max_features": ("selectbox", ["sqrt", "log2"], "sqrt")
     },
     "lightgbm": {
         "num_leaves": ("slider", 10, 100, 31, 5),
