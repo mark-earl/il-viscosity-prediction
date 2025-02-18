@@ -12,7 +12,10 @@ def select_features(df, feature_selection_method):
         return select_features_using_preset(df)
 
     elif feature_selection_method == "Use Feature Importance File":
-        return select_features_using_file(df)
+        buffer = select_features_using_file(df)
+        if buffer:
+            return buffer
+        return []
 
     elif feature_selection_method == "Manually Select Features":
         return select_features_manually(df)
@@ -27,8 +30,7 @@ def select_features_using_file(df):
     feature_importance_file = st.sidebar.file_uploader("Upload Feature Importance File (Excel)", type=["xlsx"])
     if feature_importance_file:
         feature_importance_data = load_uploaded_data(feature_importance_file)
-        selected_features = list(feature_importance_data['Feature'])
-        select_features = df[select_features]
+        selected_features = list(feature_importance_data['index'])
         return selected_features
 
 def select_features_using_preset(df):
