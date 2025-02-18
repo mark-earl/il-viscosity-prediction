@@ -76,7 +76,7 @@ def get_model_selection(X_included, y_included):
 
 def train_and_evaluate(X_included, y_included, included_data, excluded_data, use_committee, models_keys, hyperparameters, run_ci, num_runs):
     """Handles the model training and evaluation logic."""
-    X_train, X_test, y_train, y_test = train_test_split(X_included, y_included) # random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X_included, y_included, random_state=0)
 
     model=None
 
@@ -104,7 +104,6 @@ def train_and_evaluate(X_included, y_included, included_data, excluded_data, use
 
     plot_and_display_results(included_data, excluded_data, X_train, y_train, y_train_pred, y_test, y_pred, r2_rand, y_included, model, models_keys)
 
-# Initialize and train the selected model with hyperparameters
 def train_model(X_train, y_train, model_name="catboost", hyperparameters={}):
     model_classes = {
         "catboost": CatBoostRegressor,
@@ -167,7 +166,6 @@ def plot_and_display_results(included_data, excluded_data, X_train, y_train, y_t
 
     st.pyplot(plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded, y_excluded_pred))
 
-# Predict on the test set
 def evaluate_model(model, X_test, y_test):
     y_pred = model.predict(X_test)
     r2_rand = r2_score(y_test, y_pred)

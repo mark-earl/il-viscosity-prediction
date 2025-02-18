@@ -1,17 +1,9 @@
 import streamlit as st
-from upload_dataset import *
-from constants import *
-from data_preprocessing import *
-from feature_selection import *
+from upload_dataset import load_and_preview_dataset
+from data_preprocessing import preprocess_data, remove_irrelevant_features
+from feature_selection import select_features, select_target
 from model_training import model_training_step
 from data_analysis import data_analysis_step
-
-def show_features(X_included):
-    st.header("Selected Features")
-    features_list = X_included.columns.tolist()
-    with st.expander(f"View Selected Features ({len(features_list)})"):
-        for i in features_list:
-            st.markdown("- " + i)
 
 def main():
 
@@ -45,7 +37,11 @@ def main():
     X_included = included_data[selected_features]
     y_included = included_data[target_feature]
 
-    show_features(X_included)
+    st.header("Selected Features")
+    features_list = X_included.columns.tolist()
+    with st.expander(f"View Selected Features ({len(features_list)})"):
+        for i in features_list:
+            st.markdown("- " + i)
 
     st.sidebar.header("Step 3: Choose Desired Output")
     output = st.sidebar.radio("Output",["Run Machine Learning", "Perform Data Analysis"])
