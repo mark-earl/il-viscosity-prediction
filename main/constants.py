@@ -11,3 +11,13 @@ FEATURE_PRESET_OPTIONS = {
     "molecular_descriptors": "Molecular Descriptors",
     "both": "Both"
 }
+
+MODELS_WITH_FEATURE_IMPORTANCE = {
+    "catboost": "CatBoost",
+    "xgboost": "XGBoost",
+    "random_forest": "Random Forest",
+    "lightgbm": "LightGBM",
+    "gradient_boosting": "Gradient Boosting",
+    "adaboost": "ADABoost",
+    "decision_tree": "Decision Trees",
+}

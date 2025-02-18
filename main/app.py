@@ -9,11 +9,7 @@ from visualization import (
     plot_results,
     plot_confidence_interval
 )
-from data_analysis import (
-    plot_graph_relationships,
-    plot_feature_importance,
-    plot_correlation_heatmap
-)
+from data_analysis import data_analysis_step
 from confidence_interval_utils import (
     calculate_confidence_interval,
     run_single_committee_model
@@ -37,54 +33,12 @@ MODELS = {
     "mlp": "Multi-Layer Perceptron"
 }
 
-MODELS_WITH_FEATURE_IMPORTANCE = {
-    "catboost": "CatBoost",
-    "xgboost": "XGBoost",
-    "random_forest": "Random Forest",
-    "lightgbm": "LightGBM",
-    "gradient_boosting": "Gradient Boosting",
-    "adaboost": "ADABoost",
-    "decision_tree": "Decision Trees",
-}
-
 def show_features(X_included):
     st.header("Selected Features")
     features_list = X_included.columns.tolist()
     with st.expander(f"View Selected Features ({len(features_list)})"):
         for i in features_list:
             st.markdown("- " + i)
-
-def data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features):
-    st.sidebar.header("Data Analysis Options")
-
-    feature_importance = st.sidebar.checkbox("Analyze Feature Importance")
-    if feature_importance:
-        num_features = st.sidebar.slider("Number of features to display", min_value=1, max_value=len(X_included.columns), value=1)
-        if num_features:
-            committee_keys = model_key = None
-            use_committee = st.sidebar.checkbox("Use Committee")
-            if use_committee:
-                committees = st.sidebar.multiselect("Select Committee Models", MODELS_WITH_FEATURE_IMPORTANCE.values(), placeholder="Select Models")
-                committee_keys = [key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value in committees]
-            else:
-                model_name = st.sidebar.selectbox("Select Model for Feature Importance Analysis", list(MODELS_WITH_FEATURE_IMPORTANCE.values()))
-                model_key = next(key for key, value in MODELS_WITH_FEATURE_IMPORTANCE.items() if value == model_name)
-            if st.sidebar.button("Analyze Features"):
-                plot_feature_importance(X_included, y_included, num_features, use_committee, committee_keys, model_key)
-
-    corr_heatmap = st.sidebar.checkbox("Generate Correlational Heatmap")
-    if corr_heatmap:
-        num_heatmap_features = st.sidebar.slider("Number of Features for Heatmap", min_value=2, max_value=len(X_included.columns), value=10)
-        if st.sidebar.button("Generate Heatmap"):
-            plot_correlation_heatmap(X_included, y_included, num_heatmap_features)
-
-    graph = st.sidebar.checkbox("Generate Graph")
-    if graph:
-        if st.sidebar.button("Generate Graph"):
-            if selected_features:
-                plot_graph_relationships(X_included, selected_features)
-            else:
-                st.warning("Please select at least one feature for graph generation.")
 
 def model_training_step(X_included, y_included, included_data, excluded_data):
     st.sidebar.header("Step 4: Select Model")
@@ -191,7 +145,7 @@ def main():
     selected_features = select_features(included_data, feature_selection_method)
     target_feature = select_target(included_data)
 
-    if not select_features:
+    if len(selected_features) == 0:
         st.warning("No features selected. Please choose a preset, upload importance file, or select manually.")
         return
 
@@ -208,9 +162,6 @@ def main():
 
     elif output == "Perform Data Analysis":
         data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features)
-
-
-
 
 if __name__ == "__main__":
     main()

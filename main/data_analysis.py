@@ -5,122 +5,83 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
 import streamlit as st
-from catboost import CatBoostRegressor
+from data_analysis_helpers import *
 
-def plot_feature_importance(X, y, num_features, use_committee=False, committee_models=None, model_name=None):
-    """
-    Plots and allows download of top feature importance using a selected model or a committee of models.
-    """
+def data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features):
+    output = st.sidebar.radio("Data Analysis Options", ["Analyze Feature Importance", "Generate Correlational Heatmap", "Generate Graph"])
 
+    if output == "Analyze Feature Importance":
+        analyze_features(X_included, y_included)
+
+    if output == "Generate Correlational Heatmap":
+        generate_correlational_heatmap(X_included, y_included)
+
+    if output == "Generate Graph":
+        generate_graph(X_included, selected_features)
+
+def analyze_features(X_included, y_included):
+    num_features = st.sidebar.slider("Number of Features", min_value=1, max_value=len(X_included.columns), value=1)
+
+    use_committee, committee_keys, model_key = get_model_selection()
+
+    if st.sidebar.button("Analyze Features"):
+        plot_feature_importance(X_included, y_included, num_features, use_committee, committee_keys, model_key)
+
+def generate_correlational_heatmap(X_included, y_included):
+    num_heatmap_features = st.sidebar.slider("Number of Features", min_value=2, max_value=len(X_included.columns), value=10)
+
+    use_committee, committee_keys, model_key = get_model_selection()
+
+    if st.sidebar.button("Generate Heatmap"):
+        plot_correlation_heatmap(X_included, y_included, num_heatmap_features, use_committee, committee_keys, model_key)
+
+def generate_graph(X_included, selected_features):
+    if st.sidebar.button("Generate Graph"):
+        plot_graph_relationships(X_included, selected_features)
+
+def plot_feature_importance(X, y, num_features, use_committee=False, committee_models=None, model_key=None):
     progress = st.progress(0)
 
-    # Initialize the appropriate model(s)
-    model = None
-    if use_committee and committee_models:
-        feature_importance_sum = pd.Series(0, index=X.columns, dtype=float)
+    feature_importance_avg = compute_feature_importance(X, y, use_committee, committee_models, model_key)
+    if feature_importance_avg is None:
+        return  # Stop execution if model selection failed
 
-        for model_key in committee_models:
-            model = _get_model_by_key(model_key)
-            model.fit(X, y)
-            feature_importance_sum += pd.Series(model.feature_importances_, index=X.columns)
+    # Select the top features
+    top_features = feature_importance_avg.nlargest(num_features)
 
-        feature_importance_avg = feature_importance_sum / len(committee_models)
-    else:
-        if not model_name:
-            st.error("Please select a model for feature analysis.")
-            return
-        model = _get_model_by_key(model_name)
-        model.fit(X, y)
-        feature_importance_avg = pd.Series(model.feature_importances_, index=X.columns)
-
-    # Prepare DataFrame for plotting
-    feature_importance = feature_importance_avg.sort_values(ascending=False).head(num_features).reset_index()
-    feature_importance.columns = ['Feature', 'Importance']
-
+    # Plot
     plt.figure(figsize=(10, 6))
-    sns.barplot(data=feature_importance, x='Importance', y='Feature', palette='viridis')
+    sns.barplot(x=top_features.values, y=top_features.index, palette='viridis')
     plt.title(f'Top {num_features} Features for Target Prediction')
     plt.tight_layout()
     st.pyplot(plt.gcf())
 
-    # Save plot as PNG
+    # Save as PNG
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png")
     buffer.seek(0)
+    st.download_button("Download Feature Importance Plot as PNG", buffer, f"top_{num_features}_features.png", "image/png")
 
-    st.download_button(
-        label="Download Feature Importance Plot as PNG",
-        data=buffer,
-        file_name=f"top_{num_features}_features_plot.png",
-        mime="image/png"
-    )
-
-    # Create a DataFrame only for the top selected features
-    top_features_df = feature_importance.head(num_features)
-
-    # Allow the user to download the feature importance as an Excel file
+    # Save feature data as Excel
     buffer = io.BytesIO()
-    top_features_df.to_excel(buffer, index=False, engine='xlsxwriter')
+    top_features.to_frame(name="Importance").reset_index().to_excel(buffer, index=False, engine='xlsxwriter')
     buffer.seek(0)
-
-    st.download_button(
-        label="Download Top Features as Excel",
-        data=buffer,
-        file_name=f"top_{num_features}_features.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    st.download_button("Download Top Features as Excel", buffer, f"top_{num_features}_features.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     progress.progress(100)
 
-
-def _get_model_by_key(model_key):
-    """
-    Helper function to return the model based on the key.
-    """
-    if model_key == "catboost":
-        from catboost import CatBoostRegressor
-        return CatBoostRegressor(verbose=0)
-    elif model_key == "xgboost":
-        from xgboost import XGBRegressor
-        return XGBRegressor()
-    elif model_key == "random_forest":
-        from sklearn.ensemble import RandomForestRegressor
-        return RandomForestRegressor()
-    elif model_key == "lightgbm":
-        from lightgbm import LGBMRegressor
-        return LGBMRegressor()
-    elif model_key == "gradient_boosting":
-        from sklearn.ensemble import GradientBoostingRegressor
-        return GradientBoostingRegressor()
-    elif model_key == "adaboost":
-        from sklearn.ensemble import AdaBoostRegressor
-        return AdaBoostRegressor()
-    elif model_key == "decision_tree":
-        from sklearn.tree import DecisionTreeRegressor
-        return DecisionTreeRegressor()
-    else:
-        raise ValueError(f"Unsupported model key: {model_key}")
-
-def plot_correlation_heatmap(X, y, num_features):
-    """Generates a correlation heatmap of the selected number of important features."""
+def plot_correlation_heatmap(X, y, num_features, use_committee=False, committee_models=None, model_key=None):
     progress = st.progress(0)
 
-    # Calculate feature importance using CatBoostRegressor
-    model = CatBoostRegressor(verbose=0)
-    model.fit(X, y)
-    progress.progress(30)
+    feature_importance_avg = compute_feature_importance(X, y, use_committee, committee_models, model_key)
+    if feature_importance_avg is None:
+        return
 
-    feature_importance = pd.DataFrame({
-        'Feature': X.columns,
-        'Importance': model.feature_importances_
-    }).sort_values(by='Importance', ascending=False)
-
-    selected_features = feature_importance['Feature'].head(num_features).tolist()
+    selected_features = feature_importance_avg.nlargest(num_features).index
     heatmap_df = X[selected_features].copy()
 
     plt.figure(figsize=(12, 8))
-    correlation_matrix = heatmap_df.corr()
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=True)
+    sns.heatmap(heatmap_df.corr(), annot=True, cmap='coolwarm', fmt=".2f", cbar=True)
     plt.title(f"Correlation Heatmap of Top {num_features} Features")
     st.pyplot(plt.gcf())
 
@@ -128,24 +89,14 @@ def plot_correlation_heatmap(X, y, num_features):
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png")
     buffer.seek(0)
+    st.download_button("Download Heatmap as PNG", buffer, f"correlation_heatmap_{num_features}_features.png", "image/png")
 
-    st.download_button(
-        label="Download Heatmap as PNG",
-        data=buffer,
-        file_name=f"correlation_heatmap_{num_features}_features.png",
-        mime="image/png"
-    )
     progress.progress(100)
 
-
 def plot_graph_relationships(X, selected_features):
-    """
-    Generates a graph where rows are nodes and relationships between them are edges based on user-selected features.
 
-    Args:
-        X (DataFrame): The input data.
-        selected_features (list): List of user-selected features to use for computing relationships.
-    """
+    st.sidebar.write("This feature needs more development attention")
+    return
     progress = st.progress(0)
     G = nx.Graph()
 
