@@ -1,6 +1,5 @@
 import optuna
 import json
-import pandas as pd
 import streamlit as st
 from catboost import CatBoostRegressor
 from xgboost import XGBRegressor
@@ -81,18 +80,24 @@ def train_and_evaluate(X_included, y_included, included_data, excluded_data, use
 
     model=None
 
-    if run_ci:
-        mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
-            X_included, y_included, num_runs, committee_models=models_keys if use_committee else models_keys
-        )
-        st.write(f"Model trained successfully!")
-        st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)" if use_committee else ""))
-        return
-
     if use_committee:
+        if run_ci:
+            mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
+                X_included, y_included, num_runs, committee_models=models_keys
+            )
+            st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)" if use_committee else ""))
+            return
+
         y_train_pred, y_pred, r2_rand = run_single_committee_model(X_train, X_test, y_train, y_test, models_keys)
         st.write(f"Committee of: {', '.join([MODELS[k] for k in models_keys])} trained successfully!")
     else:
+        if run_ci:
+            mean_r2, confidence_interval, r2_scores = calculate_confidence_interval(
+                X_included, y_included, num_runs, model_name=models_keys
+            )
+            st.pyplot(plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix="(Committee)" if use_committee else ""))
+            return
+
         model = train_model(X_train, y_train, models_keys, hyperparameters)
         y_train_pred, y_pred = model.predict(X_train), model.predict(X_test)
         r2_rand = model.score(X_test, y_test)
