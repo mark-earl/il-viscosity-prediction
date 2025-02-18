@@ -34,8 +34,6 @@ def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded=None
     plt.legend()
     plt.tight_layout()
 
-    st.pyplot(fig)
-
     # Save plot as PNG and allow download
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png")
@@ -48,6 +46,7 @@ def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded=None
         mime="image/png"
     )
 
+    return fig
 
 def plot_confidence_interval(r2_scores, confidence_interval, mean_r2, title_suffix=""):
     """Generates and allows download of a plot for R² scores with a confidence interval."""
