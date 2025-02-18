@@ -2,10 +2,6 @@ import io
 import matplotlib.pyplot as plt
 import streamlit as st
 
-import io
-import matplotlib.pyplot as plt
-import streamlit as st
-
 def plot_results(y_train, y_train_pred, y_test, y_pred, r2_rand, y_excluded=None, y_excluded_pred=None):
     """Generates and allows download of a plot for log-scale predicted vs actual viscosities,
        including excluded data in gray.

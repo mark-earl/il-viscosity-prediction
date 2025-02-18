@@ -1,5 +1,5 @@
 import streamlit as st
-from constants import *
+from constants import FEATURE_PRESET_OPTIONS
 from upload_dataset import load_uploaded_data
 
 def select_target(df):

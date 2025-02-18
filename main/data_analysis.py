@@ -1,11 +1,10 @@
 import io
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
 import streamlit as st
-from data_analysis_helpers import *
+from data_analysis_helpers import get_model_selection, compute_feature_importance
 
 def data_analysis_step(X_included, y_included, included_data, excluded_data, selected_features):
     output = st.sidebar.radio("Data Analysis Options", ["Analyze Feature Importance", "Generate Correlational Heatmap", "Generate Graph"])

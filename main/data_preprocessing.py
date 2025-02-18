@@ -1,5 +1,5 @@
 import streamlit as st
-from constants import *
+from constants import IRRELEVANT_FEATURES_WORKING_ILS
 
 def remove_irrelevant_features(included_data, excluded_data):
 

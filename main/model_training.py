@@ -11,18 +11,10 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import r2_score
-from hyperparameters import MODEL_HYPERPARAMETERS
 from sklearn.model_selection import train_test_split
-from hyperparameters import MODEL_HYPERPARAMETERS
-from visualization import (
-    plot_results,
-    plot_confidence_interval
-)
-from confidence_interval_utils import (
-    calculate_confidence_interval,
-    run_single_committee_model
-)
-from constants import MODELS
+from visualization import plot_results, plot_confidence_interval
+from confidence_interval_utils import calculate_confidence_interval, run_single_committee_model
+from constants import MODELS, MODEL_HYPERPARAMETERS
 
 def model_training_step(X_included, y_included, included_data, excluded_data):
     """Main function to execute the model training step."""
