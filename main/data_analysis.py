@@ -94,31 +94,28 @@ def plot_correlation_heatmap(X, y, num_features, use_committee=False, committee_
 
 def plot_graph_relationships(X, selected_features):
 
-    st.sidebar.write("This feature needs more development attention")
-    return
     progress = st.progress(0)
     G = nx.Graph()
-
-    if not selected_features:
-        st.error("Please select at least one feature.")
-        return
 
     # Filter the DataFrame based on the selected features
     feature_data = X[selected_features]
 
+    # Randomly sample 50 nodes such that computation is doable
+    subset = feature_data.sample(50)
+
     # Add nodes (each row is a node)
-    for i, row_data in feature_data.iterrows():
+    for i, row_data in subset.iterrows():
         G.add_node(i, features=row_data.to_dict(), label=str(i))
 
     # Create edges based on feature similarity (Euclidean distance)
     total_edges = 0
-    for i in range(len(feature_data)):
-        for j in range(i + 1, len(feature_data)):
-            distance = np.linalg.norm(feature_data.iloc[i].values - feature_data.iloc[j].values)
+    for i in range(len(subset)):
+        for j in range(i + 1, len(subset)):
+            distance = np.linalg.norm(subset.iloc[i].values - subset.iloc[j].values)
             if distance < np.percentile(distance, 25):  # Add an edge if distance is in the closest 25% percentile
                 G.add_edge(i, j, weight=distance, label=f"{distance:.2f}")
                 total_edges += 1
-        progress.progress(int((i + 1) / len(feature_data) * 50))
+        progress.progress(int((i + 1) / len(subset) * 50))
 
     # Create a spring layout for graph visualization
     pos = nx.spring_layout(G, seed=42)
