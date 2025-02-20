@@ -3,7 +3,7 @@ from constants import FEATURE_PRESET_OPTIONS
 from upload_dataset import load_uploaded_data
 
 def select_target(df):
-    target = st.sidebar.selectbox("Select Target Variable", df.columns, placeholder="Select Target Variable", index=len(df.columns)-1)
+    target = st.sidebar.selectbox("Select Target Variable", df.columns, placeholder="Select Target Variable", index=len(df.columns)-1, key="Select Target Variable")
     return target
 
 def select_features(df, feature_selection_method):
