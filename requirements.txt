@@ -8,3 +8,4 @@ openpyxl
 xlsxwriter
 optuna
 catboost
+pytest

@@ -34,7 +34,7 @@ def select_features_using_file(df):
         return selected_features
 
 def select_features_using_preset(df):
-    selected_preset = st.sidebar.selectbox("Select Feature Set", list(FEATURE_PRESET_OPTIONS.values()), index=2)
+    selected_preset = st.sidebar.selectbox("Select Feature Set", list(FEATURE_PRESET_OPTIONS.values()), index=2, key="Select Feature Set")
     preset_key = next(key for key, value in FEATURE_PRESET_OPTIONS.items() if value == selected_preset)
 
     # Define functional group and molecular descriptor columns

@@ -25,7 +25,7 @@ def main():
 
     # Select features and target variable
     st.sidebar.header("Step 2: Select Features")
-    feature_selection_method = st.sidebar.radio("Feature Selection Method",["Use Feature Preset","Use Feature Importance File", "Manually Select Features"])
+    feature_selection_method = st.sidebar.radio("Feature Selection Method",["Use Feature Preset","Use Feature Importance File", "Manually Select Features"], key="Feature Selection Method")
     selected_features = select_features(included_data, feature_selection_method)
 
     target_feature = select_target(included_data)

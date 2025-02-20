@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 
 @st.cache_data
 def load_uploaded_data(data_file):
@@ -13,4 +14,9 @@ def load_and_preview_dataset():
         st.header("Dataset Preview")
         st.dataframe(df)
         return df
-    return None
+
+    else:
+        df = load_uploaded_data(os.path.join(os.getcwd(), 'data', 'xlsx', 'working-ils.xlsx'))
+        st.header("Dataset Preview")
+        st.dataframe(df)
+        return df
